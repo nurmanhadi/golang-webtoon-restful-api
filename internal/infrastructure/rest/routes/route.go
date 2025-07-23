@@ -1,13 +1,15 @@
 package routes
 
 import (
-	"webtoon/internal/domain/auth/handler"
+	auth "webtoon/internal/domain/auth/handler"
+	user "webtoon/internal/domain/user/handler"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type Init struct {
-	AuthHandler handler.AuthHandler
+	AuthHandler auth.AuthHandler
+	UserHandler user.UserHandler
 }
 
 func (i *Init) Setup(app *fiber.App) {
@@ -16,4 +18,7 @@ func (i *Init) Setup(app *fiber.App) {
 	auth := api.Group("/auth")
 	auth.Post("/register", i.AuthHandler.Register)
 	auth.Post("/login", i.AuthHandler.Login)
+
+	user := api.Group("/users")
+	user.Get("/:userId", i.UserHandler.GetById)
 }

@@ -1,9 +1,13 @@
 package config
 
 import (
-	"webtoon/internal/domain/auth/handler"
-	"webtoon/internal/domain/auth/repository"
-	"webtoon/internal/domain/auth/service"
+	authH "webtoon/internal/domain/auth/handler"
+	authR "webtoon/internal/domain/auth/repository"
+	authS "webtoon/internal/domain/auth/service"
+	userH "webtoon/internal/domain/user/handler"
+	userR "webtoon/internal/domain/user/repository"
+	userS "webtoon/internal/domain/user/service"
+
 	"webtoon/internal/infrastructure/rest/routes"
 
 	"github.com/go-playground/validator/v10"
@@ -21,16 +25,20 @@ type Configuration struct {
 
 func Initialize(conf *Configuration) {
 	// repository
-	authRepo := repository.NewAuthRepository(conf.DB)
+	authRepo := authR.NewAuthRepository(conf.DB)
+	userRepo := userR.NewUserRepository(conf.DB)
 
 	// service
-	authServ := service.NewAuthService(conf.Logger, conf.Validation, authRepo)
+	authServ := authS.NewAuthService(conf.Logger, conf.Validation, authRepo)
+	userServ := userS.NewUserService(conf.Logger, conf.Validation, userRepo)
 
 	// handler
-	authHand := handler.NewAuthHandler(authServ)
+	authHand := authH.NewAuthHandler(authServ)
+	userHand := userH.NewUserHandler(userServ)
 
 	route := &routes.Init{
 		AuthHandler: authHand,
+		UserHandler: userHand,
 	}
 	route.Setup(conf.App)
 }

@@ -1,0 +1,5 @@
+skenario
+1. get by id        | done
+2. update username  |
+3. upload avatar    |
+4. update avatar    |
