@@ -33,3 +33,16 @@ func JwtGenerateAccessToken(id string, role string) (string, error) {
 	}
 	return token, nil
 }
+func JwtVerify(token string) (*JwtCustomClaims, error) {
+	jwtSecret := []byte(os.Getenv("JWT_SECRET_KEY"))
+
+	tokenString, err := jwt.ParseWithClaims(token, &JwtCustomClaims{}, func(t *jwt.Token) (any, error) {
+		return jwtSecret, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	claims := tokenString.Claims.(*JwtCustomClaims)
+	return claims, nil
+}

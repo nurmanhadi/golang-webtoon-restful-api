@@ -8,6 +8,7 @@ import (
 	userR "webtoon/internal/domain/user/repository"
 	userS "webtoon/internal/domain/user/service"
 
+	"webtoon/internal/infrastructure/rest/middleware"
 	"webtoon/internal/infrastructure/rest/routes"
 
 	"github.com/go-playground/validator/v10"
@@ -36,7 +37,13 @@ func Initialize(conf *Configuration) {
 	authHand := authH.NewAuthHandler(authServ)
 	userHand := userH.NewUserHandler(userServ)
 
+	// middleware
+	middleware := &middleware.Inject{
+		Logger: conf.Logger,
+	}
+
 	route := &routes.Init{
+		Middleware:  middleware,
 		AuthHandler: authHand,
 		UserHandler: userHand,
 	}
