@@ -1,11 +1,9 @@
-package service
+package user
 
 import (
 	"fmt"
 	"mime/multipart"
 	"os"
-	"webtoon/internal/domain/user/dto"
-	"webtoon/internal/domain/user/repository"
 	"webtoon/pkg/image"
 	"webtoon/pkg/response"
 
@@ -14,30 +12,30 @@ import (
 )
 
 type UserService interface {
-	GetById(id string) (*dto.UserResponse, error)
-	UpdateUsername(id string, request dto.UserUpdateUsernameRequest) error
+	GetById(id string) (*UserResponse, error)
+	UpdateUsername(id string, request UserUpdateUsernameRequest) error
 	UploadAvatar(id string, avatar multipart.FileHeader) error
 }
 type service struct {
 	logger         *logrus.Logger
 	validation     *validator.Validate
-	userRepository repository.UserRepository
+	userRepository UserRepository
 }
 
-func NewUserService(logger *logrus.Logger, validation *validator.Validate, userRepository repository.UserRepository) UserService {
+func NewUserService(logger *logrus.Logger, validation *validator.Validate, userRepository UserRepository) UserService {
 	return &service{
 		logger:         logger,
 		validation:     validation,
 		userRepository: userRepository,
 	}
 }
-func (s *service) GetById(id string) (*dto.UserResponse, error) {
+func (s *service) GetById(id string) (*UserResponse, error) {
 	user, err := s.userRepository.FindById(id)
 	if err != nil {
 		s.logger.WithField("error", id).Warn("user not found")
 		return nil, response.Exception(404, "user not found")
 	}
-	response := &dto.UserResponse{
+	response := &UserResponse{
 		Id:             user.Id,
 		Username:       user.Username,
 		AvatarFilename: user.AvatarFilename,
@@ -46,7 +44,7 @@ func (s *service) GetById(id string) (*dto.UserResponse, error) {
 	s.logger.WithField("data", user.Id).Info("get user by id success")
 	return response, nil
 }
-func (s *service) UpdateUsername(id string, request dto.UserUpdateUsernameRequest) error {
+func (s *service) UpdateUsername(id string, request UserUpdateUsernameRequest) error {
 	if err := s.validation.Struct(&request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err

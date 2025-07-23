@@ -1,8 +1,6 @@
-package handler
+package user
 
 import (
-	"webtoon/internal/domain/user/dto"
-	"webtoon/internal/domain/user/service"
 	"webtoon/pkg/response"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,10 +12,10 @@ type UserHandler interface {
 	UploadAvatar(c *fiber.Ctx) error
 }
 type handler struct {
-	userService service.UserService
+	userService UserService
 }
 
-func NewUserHandler(userService service.UserService) UserHandler {
+func NewUserHandler(userService UserService) UserHandler {
 	return &handler{userService: userService}
 }
 func (h *handler) GetById(c *fiber.Ctx) error {
@@ -30,7 +28,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 }
 func (h *handler) UpdateUsername(c *fiber.Ctx) error {
 	userId := c.Params("userId", "")
-	request := new(dto.UserUpdateUsernameRequest)
+	request := new(UserUpdateUsernameRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}

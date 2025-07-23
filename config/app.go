@@ -1,15 +1,12 @@
 package config
 
 import (
-	authH "webtoon/internal/domain/auth/handler"
-	authR "webtoon/internal/domain/auth/repository"
-	authS "webtoon/internal/domain/auth/service"
-	userH "webtoon/internal/domain/user/handler"
-	userR "webtoon/internal/domain/user/repository"
-	userS "webtoon/internal/domain/user/service"
+	"webtoon/internal/domain/auth"
+	"webtoon/internal/domain/user"
 
 	"webtoon/internal/infrastructure/rest/middleware"
 	"webtoon/internal/infrastructure/rest/routes"
+	"webtoon/internal/infrastructure/storage/mysql"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -26,16 +23,16 @@ type Configuration struct {
 
 func Initialize(conf *Configuration) {
 	// repository
-	authRepo := authR.NewAuthRepository(conf.DB)
-	userRepo := userR.NewUserRepository(conf.DB)
+	authRepo := mysql.NewAuthRepository(conf.DB)
+	userRepo := mysql.NewUserRepository(conf.DB)
 
 	// service
-	authServ := authS.NewAuthService(conf.Logger, conf.Validation, authRepo)
-	userServ := userS.NewUserService(conf.Logger, conf.Validation, userRepo)
+	authServ := auth.NewAuthService(conf.Logger, conf.Validation, authRepo)
+	userServ := user.NewUserService(conf.Logger, conf.Validation, userRepo)
 
 	// handler
-	authHand := authH.NewAuthHandler(authServ)
-	userHand := userH.NewUserHandler(userServ)
+	authHand := auth.NewAuthHandler(authServ)
+	userHand := user.NewUserHandler(userServ)
 
 	// middleware
 	middleware := &middleware.Inject{

@@ -1,9 +1,7 @@
-package service
+package auth
 
 import (
-	"webtoon/internal/domain/auth/dto"
-	"webtoon/internal/domain/auth/repository"
-	"webtoon/internal/domain/user/entity"
+	"webtoon/internal/domain/user"
 	"webtoon/pkg/response"
 	"webtoon/pkg/role"
 	"webtoon/pkg/security"
@@ -15,23 +13,23 @@ import (
 )
 
 type AuthService interface {
-	Register(request dto.AuthRequest) error
-	Login(request dto.AuthRequest) (*dto.AuthResponse, error)
+	Register(request AuthRequest) error
+	Login(request AuthRequest) (*AuthResponse, error)
 }
 type service struct {
 	logger         *logrus.Logger
 	validation     *validator.Validate
-	authRepository repository.AuthRepository
+	authRepository AuthRepository
 }
 
-func NewAuthService(logger *logrus.Logger, validation *validator.Validate, authRepository repository.AuthRepository) AuthService {
+func NewAuthService(logger *logrus.Logger, validation *validator.Validate, authRepository AuthRepository) AuthService {
 	return &service{
 		logger:         logger,
 		validation:     validation,
 		authRepository: authRepository,
 	}
 }
-func (s *service) Register(request dto.AuthRequest) error {
+func (s *service) Register(request AuthRequest) error {
 	if err := s.validation.Struct(&request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
@@ -50,7 +48,7 @@ func (s *service) Register(request dto.AuthRequest) error {
 		s.logger.WithError(err).Error("hash password error")
 		return err
 	}
-	user := &entity.User{
+	user := &user.User{
 		Id:       uuid.NewString(),
 		Username: request.Username,
 		Password: string(newPassword),
@@ -65,7 +63,7 @@ func (s *service) Register(request dto.AuthRequest) error {
 	return nil
 }
 
-func (s *service) Login(request dto.AuthRequest) (*dto.AuthResponse, error) {
+func (s *service) Login(request AuthRequest) (*AuthResponse, error) {
 	if err := s.validation.Struct(&request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return nil, err
@@ -84,7 +82,7 @@ func (s *service) Login(request dto.AuthRequest) (*dto.AuthResponse, error) {
 		s.logger.WithError(err).Error("generate access token error")
 		return nil, err
 	}
-	response := &dto.AuthResponse{
+	response := &AuthResponse{
 		AccessToken: token,
 	}
 	s.logger.WithField("data", user.Username).Info("login success")

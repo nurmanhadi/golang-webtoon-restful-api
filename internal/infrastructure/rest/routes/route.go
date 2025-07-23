@@ -1,8 +1,8 @@
 package routes
 
 import (
-	auth "webtoon/internal/domain/auth/handler"
-	user "webtoon/internal/domain/user/handler"
+	"webtoon/internal/domain/auth"
+	"webtoon/internal/domain/user"
 	"webtoon/internal/infrastructure/rest/middleware"
 	"webtoon/pkg/role"
 
