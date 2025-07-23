@@ -6,3 +6,6 @@ type UserResponse struct {
 	AvatarFilename string `json:"avatar_file"`
 	AvatarUrl      string `json:"avatar_url"`
 }
+type UserUpdateUsernameRequest struct {
+	Username string `validate:"required,max=100" json:"username"`
+}

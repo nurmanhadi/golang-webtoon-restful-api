@@ -11,6 +11,7 @@ import (
 
 type UserService interface {
 	GetById(id string) (*dto.UserResponse, error)
+	UpdateUsername(id string, request dto.UserUpdateUsernameRequest) error
 }
 type service struct {
 	logger         *logrus.Logger
@@ -39,4 +40,26 @@ func (s *service) GetById(id string) (*dto.UserResponse, error) {
 	}
 	s.logger.WithField("data", user.Id).Info("get user by id success")
 	return response, nil
+}
+func (s *service) UpdateUsername(id string, request dto.UserUpdateUsernameRequest) error {
+	if err := s.validation.Struct(&request); err != nil {
+		s.logger.WithError(err).Warn("validation error")
+		return err
+	}
+	user, err := s.userRepository.FindById(id)
+	if err != nil {
+		s.logger.WithField("error", id).Warn("user not found")
+		return response.Exception(404, "user not found")
+	}
+	if user.Username == request.Username {
+		s.logger.WithField("data", id).Info("update username success")
+		return nil
+	}
+	user.Username = request.Username
+	if err := s.userRepository.Save(user); err != nil {
+		s.logger.WithError(err).Error("save user to database error")
+		return err
+	}
+	s.logger.WithField("data", id).Info("update username success")
+	return nil
 }

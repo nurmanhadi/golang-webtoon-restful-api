@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"webtoon/internal/domain/user/dto"
 	"webtoon/internal/domain/user/service"
 	"webtoon/pkg/response"
 
@@ -9,6 +10,7 @@ import (
 
 type UserHandler interface {
 	GetById(c *fiber.Ctx) error
+	UpdateUsername(c *fiber.Ctx) error
 }
 type handler struct {
 	userService service.UserService
@@ -24,4 +26,15 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, result)
+}
+func (h *handler) UpdateUsername(c *fiber.Ctx) error {
+	userId := c.Params("userId", "")
+	request := new(dto.UserUpdateUsernameRequest)
+	if err := c.BodyParser(&request); err != nil {
+		return response.Exception(400, "error parse json")
+	}
+	if err := h.userService.UpdateUsername(userId, *request); err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
 }
