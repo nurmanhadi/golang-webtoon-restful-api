@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"webtoon/pkg"
+	"webtoon/pkg/response"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/goccy/go-json"
@@ -33,7 +33,7 @@ func errorHandler(c *fiber.Ctx, err error) error {
 			"path":  c.OriginalURL(),
 		})
 	}
-	if responseStatusException, ok := err.(*pkg.ErrorResponse); ok {
+	if responseStatusException, ok := err.(*response.ErrorResponse); ok {
 		return c.Status(responseStatusException.Code).JSON(fiber.Map{
 			"error": responseStatusException.Message,
 			"path":  c.OriginalURL(),
