@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"slices"
 	"strings"
 	"webtoon/pkg/response"
 	"webtoon/pkg/security"
@@ -46,17 +47,16 @@ func getTokenFromHeader(c *fiber.Ctx) (string, error) {
 // roleValidation
 func (m *Inject) RequireRole(roles []string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		role := c.Locals("role").(string)
-		var hook string
-		for _, r := range roles {
-			if role == r {
-				hook = r
-			}
-		}
-		if role != hook {
-			m.Logger.WithField("error", role).Warn("not have permission")
+		role, ok := c.Locals("role").(string)
+		if !ok || role == "" {
+			m.Logger.WithField("error", role).Warn("missing or invalid role in context")
 			return response.Exception(403, "you do not have permission to access this resource")
 		}
-		return c.Next()
+
+		if slices.Contains(roles, role) {
+			return c.Next()
+		}
+		m.Logger.WithField("error", role).Warn("not have permission")
+		return response.Exception(403, "you do not have permission to access this resource")
 	}
 }
