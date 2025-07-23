@@ -1,8 +1,12 @@
 package service
 
 import (
+	"fmt"
+	"mime/multipart"
+	"os"
 	"webtoon/internal/domain/user/dto"
 	"webtoon/internal/domain/user/repository"
+	"webtoon/pkg/image"
 	"webtoon/pkg/response"
 
 	"github.com/go-playground/validator/v10"
@@ -12,6 +16,7 @@ import (
 type UserService interface {
 	GetById(id string) (*dto.UserResponse, error)
 	UpdateUsername(id string, request dto.UserUpdateUsernameRequest) error
+	UploadAvatar(id string, avatar multipart.FileHeader) error
 }
 type service struct {
 	logger         *logrus.Logger
@@ -61,5 +66,21 @@ func (s *service) UpdateUsername(id string, request dto.UserUpdateUsernameReques
 		return err
 	}
 	s.logger.WithField("data", id).Info("update username success")
+	return nil
+}
+func (s *service) UploadAvatar(id string, avatar multipart.FileHeader) error {
+	if err := image.Validate(avatar); err != nil {
+		s.logger.WithError(err).Warn("validation error")
+		return response.Exception(404, err.Error())
+	}
+	webpFile, err := image.CompressToCwebp(avatar)
+	if err != nil {
+		s.logger.WithError(err).Error("compress avatar error")
+		return err
+	}
+	defer webpFile.Close()
+	os.Remove(webpFile.Name())
+	fmt.Println(webpFile.Name())
+
 	return nil
 }

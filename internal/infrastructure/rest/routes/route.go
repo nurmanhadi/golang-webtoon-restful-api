@@ -25,4 +25,5 @@ func (i *Init) Setup(app *fiber.App) {
 	user := api.Group("/users", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN), string(role.USER)}))
 	user.Get("/:userId", i.UserHandler.GetById)
 	user.Put("/:userId", i.UserHandler.UpdateUsername)
+	user.Put("/:userId/upload", i.UserHandler.UploadAvatar)
 }
