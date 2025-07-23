@@ -1,7 +1,7 @@
 package service
 
 import (
-	"webtoon/internal/domain/auth/model"
+	"webtoon/internal/domain/auth/dto"
 	"webtoon/internal/domain/auth/repository"
 	"webtoon/internal/domain/user/entity"
 	"webtoon/pkg/response"
@@ -15,8 +15,8 @@ import (
 )
 
 type AuthService interface {
-	Register(request model.AuthRequest) error
-	Login(request model.AuthRequest) (*model.AuthResponse, error)
+	Register(request dto.AuthRequest) error
+	Login(request dto.AuthRequest) (*dto.AuthResponse, error)
 }
 type service struct {
 	logger         *logrus.Logger
@@ -31,7 +31,7 @@ func NewAuthService(logger *logrus.Logger, validation *validator.Validate, authR
 		authRepository: authRepository,
 	}
 }
-func (s *service) Register(request model.AuthRequest) error {
+func (s *service) Register(request dto.AuthRequest) error {
 	if err := s.validation.Struct(&request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
@@ -65,7 +65,7 @@ func (s *service) Register(request model.AuthRequest) error {
 	return nil
 }
 
-func (s *service) Login(request model.AuthRequest) (*model.AuthResponse, error) {
+func (s *service) Login(request dto.AuthRequest) (*dto.AuthResponse, error) {
 	if err := s.validation.Struct(&request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return nil, err
@@ -84,7 +84,7 @@ func (s *service) Login(request model.AuthRequest) (*model.AuthResponse, error) 
 		s.logger.WithError(err).Error("generate access token error")
 		return nil, err
 	}
-	response := &model.AuthResponse{
+	response := &dto.AuthResponse{
 		AccessToken: token,
 	}
 	s.logger.WithField("data", user.Username).Info("login success")

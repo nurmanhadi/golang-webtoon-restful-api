@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"webtoon/internal/domain/auth/model"
+	"webtoon/internal/domain/auth/dto"
 	"webtoon/internal/domain/auth/service"
 	"webtoon/pkg/response"
 
@@ -21,7 +21,7 @@ func NewAuthHandler(authService service.AuthService) AuthHandler {
 }
 
 func (h *handler) Register(c *fiber.Ctx) error {
-	request := new(model.AuthRequest)
+	request := new(dto.AuthRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}
@@ -31,7 +31,7 @@ func (h *handler) Register(c *fiber.Ctx) error {
 	return response.Success(c, 201, "OK")
 }
 func (h *handler) Login(c *fiber.Ctx) error {
-	request := new(model.AuthRequest)
+	request := new(dto.AuthRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}
