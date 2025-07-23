@@ -10,6 +10,7 @@ func main() {
 	logger := config.NewLogger()
 	validation := config.NewValidator()
 	db := config.NewMysql()
+	config.NewMinio()
 	app := config.NewFiber()
 
 	config.Initialize(&config.Configuration{
