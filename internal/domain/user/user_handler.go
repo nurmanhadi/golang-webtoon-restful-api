@@ -11,14 +11,14 @@ type UserHandler interface {
 	UpdateUsername(c *fiber.Ctx) error
 	UploadAvatar(c *fiber.Ctx) error
 }
-type handler struct {
+type userHandler struct {
 	userService UserService
 }
 
 func NewUserHandler(userService UserService) UserHandler {
-	return &handler{userService: userService}
+	return &userHandler{userService: userService}
 }
-func (h *handler) GetById(c *fiber.Ctx) error {
+func (h *userHandler) GetById(c *fiber.Ctx) error {
 	userId := c.Params("userId", "")
 	result, err := h.userService.GetById(userId)
 	if err != nil {
@@ -26,7 +26,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 	}
 	return response.Success(c, 200, result)
 }
-func (h *handler) UpdateUsername(c *fiber.Ctx) error {
+func (h *userHandler) UpdateUsername(c *fiber.Ctx) error {
 	userId := c.Params("userId", "")
 	request := new(UserUpdateUsernameRequest)
 	if err := c.BodyParser(&request); err != nil {
@@ -37,7 +37,7 @@ func (h *handler) UpdateUsername(c *fiber.Ctx) error {
 	}
 	return response.Success(c, 200, "OK")
 }
-func (h *handler) UploadAvatar(c *fiber.Ctx) error {
+func (h *userHandler) UploadAvatar(c *fiber.Ctx) error {
 	userId := c.Params("userId", "")
 	avatar, err := c.FormFile("avatar")
 	if err != nil {

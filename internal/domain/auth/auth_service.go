@@ -16,20 +16,20 @@ type AuthService interface {
 	Register(request AuthRequest) error
 	Login(request AuthRequest) (*AuthResponse, error)
 }
-type service struct {
+type authService struct {
 	logger         *logrus.Logger
 	validation     *validator.Validate
 	authRepository AuthRepository
 }
 
 func NewAuthService(logger *logrus.Logger, validation *validator.Validate, authRepository AuthRepository) AuthService {
-	return &service{
+	return &authService{
 		logger:         logger,
 		validation:     validation,
 		authRepository: authRepository,
 	}
 }
-func (s *service) Register(request AuthRequest) error {
+func (s *authService) Register(request AuthRequest) error {
 	if err := s.validation.Struct(&request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
@@ -63,7 +63,7 @@ func (s *service) Register(request AuthRequest) error {
 	return nil
 }
 
-func (s *service) Login(request AuthRequest) (*AuthResponse, error) {
+func (s *authService) Login(request AuthRequest) (*AuthResponse, error) {
 	if err := s.validation.Struct(&request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return nil, err

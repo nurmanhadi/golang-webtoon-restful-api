@@ -10,15 +10,15 @@ type AuthHandler interface {
 	Register(c *fiber.Ctx) error
 	Login(c *fiber.Ctx) error
 }
-type handler struct {
+type authHandler struct {
 	authService AuthService
 }
 
 func NewAuthHandler(authService AuthService) AuthHandler {
-	return &handler{authService: authService}
+	return &authHandler{authService: authService}
 }
 
-func (h *handler) Register(c *fiber.Ctx) error {
+func (h *authHandler) Register(c *fiber.Ctx) error {
 	request := new(AuthRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
@@ -28,7 +28,7 @@ func (h *handler) Register(c *fiber.Ctx) error {
 	}
 	return response.Success(c, 201, "OK")
 }
-func (h *handler) Login(c *fiber.Ctx) error {
+func (h *authHandler) Login(c *fiber.Ctx) error {
 	request := new(AuthRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")

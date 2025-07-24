@@ -16,20 +16,20 @@ type UserService interface {
 	UpdateUsername(id string, request UserUpdateUsernameRequest) error
 	UploadAvatar(id string, avatar multipart.FileHeader) error
 }
-type service struct {
+type userService struct {
 	logger         *logrus.Logger
 	validation     *validator.Validate
 	userRepository UserRepository
 }
 
 func NewUserService(logger *logrus.Logger, validation *validator.Validate, userRepository UserRepository) UserService {
-	return &service{
+	return &userService{
 		logger:         logger,
 		validation:     validation,
 		userRepository: userRepository,
 	}
 }
-func (s *service) GetById(id string) (*UserResponse, error) {
+func (s *userService) GetById(id string) (*UserResponse, error) {
 	user, err := s.userRepository.FindById(id)
 	if err != nil {
 		s.logger.WithField("error", id).Warn("user not found")
@@ -44,7 +44,7 @@ func (s *service) GetById(id string) (*UserResponse, error) {
 	s.logger.WithField("data", user.Id).Info("get user by id success")
 	return response, nil
 }
-func (s *service) UpdateUsername(id string, request UserUpdateUsernameRequest) error {
+func (s *userService) UpdateUsername(id string, request UserUpdateUsernameRequest) error {
 	if err := s.validation.Struct(&request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
@@ -66,7 +66,7 @@ func (s *service) UpdateUsername(id string, request UserUpdateUsernameRequest) e
 	s.logger.WithField("data", id).Info("update username success")
 	return nil
 }
-func (s *service) UploadAvatar(id string, avatar multipart.FileHeader) error {
+func (s *userService) UploadAvatar(id string, avatar multipart.FileHeader) error {
 	if err := image.Validate(avatar); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return response.Exception(404, err.Error())
