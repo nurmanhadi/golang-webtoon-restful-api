@@ -8,19 +8,19 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 
 	"github.com/chai2010/webp"
 )
 
-func Validate(image multipart.FileHeader) error {
-	filenames := []string{".jpg", ".jpeg", ".webp", ".png"}
-	ext := strings.ToLower(filepath.Ext(image.Filename))
-	if slices.Contains(filenames, ext) {
+func Validate(filename string) error {
+	ext := strings.ToLower(filepath.Ext(filename))
+	switch ext {
+	case ".jpg", ".jpeg", ".webp", ".png":
 		return nil
+	default:
+		return errors.New("file most be one of: .jpg, .jpeg, .webp, .png")
 	}
-	return errors.New("file most be one of: .jpg, .jpeg, .webp, .png")
 }
 func CompressToCwebp(obj multipart.FileHeader) (*os.File, error) {
 	src, err := obj.Open()

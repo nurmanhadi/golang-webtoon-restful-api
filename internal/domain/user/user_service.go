@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"mime/multipart"
 	"os"
+	"time"
+	"webtoon/internal/infrastructure/storage/s3"
+	"webtoon/pkg"
 	"webtoon/pkg/image"
 	"webtoon/pkg/response"
 
@@ -20,13 +23,15 @@ type userService struct {
 	logger         *logrus.Logger
 	validation     *validator.Validate
 	userRepository UserRepository
+	s3             s3.S3Storage
 }
 
-func NewUserService(logger *logrus.Logger, validation *validator.Validate, userRepository UserRepository) UserService {
+func NewUserService(logger *logrus.Logger, validation *validator.Validate, userRepository UserRepository, s3 s3.S3Storage) UserService {
 	return &userService{
 		logger:         logger,
 		validation:     validation,
 		userRepository: userRepository,
+		s3:             s3,
 	}
 }
 func (s *userService) GetById(id string) (*UserResponse, error) {
@@ -67,9 +72,14 @@ func (s *userService) UpdateUsername(id string, request UserUpdateUsernameReques
 	return nil
 }
 func (s *userService) UploadAvatar(id string, avatar multipart.FileHeader) error {
-	if err := image.Validate(avatar); err != nil {
+	user, err := s.userRepository.FindById(id)
+	if err != nil {
+		s.logger.WithField("error", id).Warn("user not found")
+		return response.Exception(404, "user not found")
+	}
+	if err := image.Validate(avatar.Filename); err != nil {
 		s.logger.WithError(err).Warn("validation error")
-		return response.Exception(404, err.Error())
+		return response.Exception(400, err.Error())
 	}
 	webpFile, err := image.CompressToCwebp(avatar)
 	if err != nil {
@@ -77,8 +87,20 @@ func (s *userService) UploadAvatar(id string, avatar multipart.FileHeader) error
 		return err
 	}
 	defer webpFile.Close()
-	os.Remove(webpFile.Name())
-	fmt.Println(webpFile.Name())
+	defer os.Remove(webpFile.Name())
 
+	filename := fmt.Sprintf("%d.webp", time.Now().Unix())
+	if err := s.s3.UploadFile(webpFile, filename); err != nil {
+		s.logger.WithError(err).Error("s3 upload file error")
+		return err
+	}
+	avatarUrl := pkg.GenerateUrl(filename)
+	user.AvatarFilename = filename
+	user.AvatarUrl = avatarUrl
+	if err := s.userRepository.Save(user); err != nil {
+		s.logger.WithError(err).Error("save user to database error")
+		return err
+	}
+	s.logger.WithField("data", id).Info("upload avatar success")
 	return nil
 }

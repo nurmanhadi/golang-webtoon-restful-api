@@ -1,6 +1,8 @@
 package config
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -25,5 +27,31 @@ func NewMinio() *minio.Client {
 		log.Fatalf("minio error: %s", err.Error())
 	}
 	log.Println("minio activate")
+	if err := createBuckets(minioClient); err != nil {
+		log.Fatalf("minio bucket error: %s", err.Error())
+	}
 	return minioClient
+}
+
+func createBuckets(minioClient *minio.Client) error {
+	ctx := context.Background()
+	bucket := os.Getenv("MINIO_BUCKETS")
+	found, err := minioClient.BucketExists(ctx, bucket)
+	if err != nil {
+		return err
+	}
+	if found {
+		log.Printf("buckets %s already exists", bucket)
+	} else {
+		if err := minioClient.MakeBucket(ctx, bucket, minio.MakeBucketOptions{ObjectLocking: true}); err != nil {
+			return err
+		}
+	}
+
+	policy := fmt.Sprintf(`{"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::%s/*"],"Sid": ""}]}`, bucket)
+	if err := minioClient.SetBucketPolicy(ctx, bucket, policy); err != nil {
+		return err
+	}
+	log.Printf("minio buckets: %s", bucket)
+	return nil
 }

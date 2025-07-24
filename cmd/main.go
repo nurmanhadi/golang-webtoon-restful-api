@@ -1,22 +1,26 @@
 package main
 
 import (
+	"context"
 	"log"
 	"webtoon/config"
 )
 
 func main() {
+	ctx := context.Background()
 	config.NewEnvirontment()
 	logger := config.NewLogger()
 	validation := config.NewValidator()
 	db := config.NewMysql()
-	config.NewMinio()
+	s3 := config.NewMinio()
 	app := config.NewFiber()
 
 	config.Initialize(&config.Configuration{
+		Ctx:        ctx,
 		Logger:     logger,
 		Validation: validation,
 		DB:         db,
+		S3:         s3,
 		App:        app,
 	})
 
