@@ -2,4 +2,3 @@ skenario
 1. get by id        | done
 2. update username  | done
 3. upload avatar    | done
-4. update avatar    |

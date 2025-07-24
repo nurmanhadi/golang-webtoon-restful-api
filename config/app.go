@@ -27,10 +27,10 @@ type Configuration struct {
 }
 
 func Initialize(conf *Configuration) {
-	// repository
-	s3Store := s3.NewMinioStorage(conf.Ctx, conf.S3)
-	authRepo := mysql.NewAuthRepository(conf.DB)
-	userRepo := mysql.NewUserRepository(conf.DB)
+	// storage
+	s3Store := s3.NewS3Storage(conf.Ctx, conf.S3)
+	authRepo := mysql.NewAuthStorage(conf.DB)
+	userRepo := mysql.NewUserStorage(conf.DB)
 
 	// service
 	authServ := auth.NewAuthService(conf.Logger, conf.Validation, authRepo)

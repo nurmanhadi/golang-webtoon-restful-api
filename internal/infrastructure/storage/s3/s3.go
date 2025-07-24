@@ -16,7 +16,7 @@ type s3Storage struct {
 	s3  *minio.Client
 }
 
-func NewMinioStorage(ctx context.Context, s3 *minio.Client) S3Storage {
+func NewS3Storage(ctx context.Context, s3 *minio.Client) S3Storage {
 	return &s3Storage{
 		ctx: ctx,
 		s3:  s3,

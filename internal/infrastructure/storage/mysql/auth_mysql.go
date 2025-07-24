@@ -7,18 +7,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type authRepository struct {
+type authStorage struct {
 	db *gorm.DB
 }
 
-func NewAuthRepository(db *gorm.DB) auth.AuthRepository {
-	return &authRepository{db: db}
+func NewAuthStorage(db *gorm.DB) auth.AuthRepository {
+	return &authStorage{db: db}
 }
 
-func (r *authRepository) Save(user *user.User) error {
+func (r *authStorage) Save(user *user.User) error {
 	return r.db.Save(&user).Error
 }
-func (r *authRepository) FindByUsername(username string) (*user.User, error) {
+func (r *authStorage) FindByUsername(username string) (*user.User, error) {
 	var user *user.User
 	err := r.db.Where("username = ?", username).First(&user).Error
 	if err != nil {
@@ -26,7 +26,7 @@ func (r *authRepository) FindByUsername(username string) (*user.User, error) {
 	}
 	return user, nil
 }
-func (r *authRepository) CountByUsername(username string) (int64, error) {
+func (r *authStorage) CountByUsername(username string) (int64, error) {
 	var count int64
 	err := r.db.Model(&user.User{}).Where("username = ?", username).Count(&count).Error
 	if err != nil {
