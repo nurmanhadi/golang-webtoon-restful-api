@@ -88,18 +88,24 @@ func (s *userService) UploadAvatar(id string, avatar multipart.FileHeader) error
 	}
 	defer webpFile.Close()
 	defer os.Remove(webpFile.Name())
-
-	filename := fmt.Sprintf("%d.webp", time.Now().Unix())
-	if err := s.s3.UploadFile(webpFile, filename); err != nil {
-		s.logger.WithError(err).Error("s3 upload file error")
-		return err
-	}
-	avatarUrl := pkg.GenerateUrl(filename)
-	user.AvatarFilename = filename
-	user.AvatarUrl = avatarUrl
-	if err := s.userRepository.Save(user); err != nil {
-		s.logger.WithError(err).Error("save user to database error")
-		return err
+	if user.AvatarFilename == "" && user.AvatarUrl == "" {
+		filename := fmt.Sprintf("%d.webp", time.Now().Unix())
+		if err := s.s3.UploadFile(webpFile, filename); err != nil {
+			s.logger.WithError(err).Error("s3 upload file error")
+			return err
+		}
+		avatarUrl := pkg.GenerateUrl(filename)
+		user.AvatarFilename = filename
+		user.AvatarUrl = avatarUrl
+		if err := s.userRepository.Save(user); err != nil {
+			s.logger.WithError(err).Error("save user to database error")
+			return err
+		}
+	} else {
+		if err := s.s3.UploadFile(webpFile, user.AvatarFilename); err != nil {
+			s.logger.WithError(err).Error("s3 upload file error")
+			return err
+		}
 	}
 	s.logger.WithField("data", id).Info("upload avatar success")
 	return nil
