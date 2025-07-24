@@ -17,7 +17,7 @@ import (
 type UserService interface {
 	GetById(id string) (*UserResponse, error)
 	UpdateUsername(id string, request UserUpdateUsernameRequest) error
-	UploadAvatar(id string, avatar multipart.FileHeader) error
+	UploadAvatar(id string, avatar *multipart.FileHeader) error
 }
 type userService struct {
 	logger         *logrus.Logger
@@ -71,7 +71,7 @@ func (s *userService) UpdateUsername(id string, request UserUpdateUsernameReques
 	s.logger.WithField("data", id).Info("update username success")
 	return nil
 }
-func (s *userService) UploadAvatar(id string, avatar multipart.FileHeader) error {
+func (s *userService) UploadAvatar(id string, avatar *multipart.FileHeader) error {
 	user, err := s.userRepository.FindById(id)
 	if err != nil {
 		s.logger.WithField("error", id).Warn("user not found")

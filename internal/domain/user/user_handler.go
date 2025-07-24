@@ -43,7 +43,7 @@ func (h *userHandler) UploadAvatar(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Exception(400, "avatar is required")
 	}
-	if err := h.userService.UploadAvatar(userId, *avatar); err != nil {
+	if err := h.userService.UploadAvatar(userId, avatar); err != nil {
 		return err
 	}
 	return response.Success(c, 200, "OK")

@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"webtoon/internal/domain/auth"
+	"webtoon/internal/domain/comic"
 	"webtoon/internal/domain/user"
 
 	"webtoon/internal/infrastructure/rest/middleware"
@@ -29,16 +30,19 @@ type Configuration struct {
 func Initialize(conf *Configuration) {
 	// storage
 	s3Store := s3.NewS3Storage(conf.Ctx, conf.S3)
-	authRepo := mysql.NewAuthStorage(conf.DB)
-	userRepo := mysql.NewUserStorage(conf.DB)
+	authStore := mysql.NewAuthStorage(conf.DB)
+	userStore := mysql.NewUserStorage(conf.DB)
+	comicStore := mysql.NewComicStorage(conf.DB)
 
 	// service
-	authServ := auth.NewAuthService(conf.Logger, conf.Validation, authRepo)
-	userServ := user.NewUserService(conf.Logger, conf.Validation, userRepo, s3Store)
+	authServ := auth.NewAuthService(conf.Logger, conf.Validation, authStore)
+	userServ := user.NewUserService(conf.Logger, conf.Validation, userStore, s3Store)
+	comicServ := comic.NewComicService(conf.Logger, conf.Validation, comicStore, s3Store)
 
 	// handler
 	authHand := auth.NewAuthHandler(authServ)
 	userHand := user.NewUserHandler(userServ)
+	comicHand := comic.NewComicHandler(comicServ)
 
 	// middleware
 	middleware := &middleware.Inject{
@@ -46,9 +50,10 @@ func Initialize(conf *Configuration) {
 	}
 
 	route := &routes.Init{
-		Middleware:  middleware,
-		AuthHandler: authHand,
-		UserHandler: userHand,
+		Middleware:   middleware,
+		AuthHandler:  authHand,
+		UserHandler:  userHand,
+		ComicHandler: comicHand,
 	}
 	route.Setup(conf.App)
 }

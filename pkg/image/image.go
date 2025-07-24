@@ -22,7 +22,7 @@ func Validate(filename string) error {
 		return errors.New("file most be one of: .jpg, .jpeg, .webp, .png")
 	}
 }
-func CompressToCwebp(obj multipart.FileHeader) (*os.File, error) {
+func CompressToCwebp(obj *multipart.FileHeader) (*os.File, error) {
 	src, err := obj.Open()
 	if err != nil {
 		return nil, err
