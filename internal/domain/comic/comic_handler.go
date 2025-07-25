@@ -10,6 +10,8 @@ import (
 type ComicHandler interface {
 	AddComic(c *fiber.Ctx) error
 	UpdateComic(c *fiber.Ctx) error
+	GetById(c *fiber.Ctx) error
+	GetAll(c *fiber.Ctx) error
 }
 
 type comicHandler struct {
@@ -62,4 +64,21 @@ func (h *comicHandler) UpdateComic(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, "OK")
+}
+func (h *comicHandler) GetById(c *fiber.Ctx) error {
+	comicId := c.Params("comicId")
+	result, err := h.ComicService.GetById(comicId)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
+}
+func (h *comicHandler) GetAll(c *fiber.Ctx) error {
+	page := c.Params("page", "1")
+	size := c.Params("size", "10")
+	result, err := h.ComicService.GetAll(page, size)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
 }

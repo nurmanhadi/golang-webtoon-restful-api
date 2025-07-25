@@ -2,8 +2,10 @@ package comic
 
 import (
 	"fmt"
+	"math"
 	"mime/multipart"
 	"os"
+	"strconv"
 	"time"
 	"webtoon/internal/infrastructure/storage/s3"
 	"webtoon/pkg"
@@ -18,6 +20,8 @@ import (
 type ComicService interface {
 	AddComic(cover *multipart.FileHeader, request *ComicAddRequest) error
 	UpdateComic(id string, cover *multipart.FileHeader, request *ComicUpdateRequest) error
+	GetById(id string) (*ComicResponse, error)
+	GetAll(page string, size string) (*pkg.Paging[[]ComicResponse], error)
 }
 
 type comicService struct {
@@ -118,9 +122,54 @@ func (s *comicService) UpdateComic(id string, cover *multipart.FileHeader, reque
 			return err
 		}
 	}
+	comic.UpdatedAt = time.Now()
 	if err := s.comicRepository.Save(comic); err != nil {
 		s.logger.WithError(err).Error("comic save error")
 	}
 	s.logger.WithField("data", id).Info("comic update success")
 	return nil
+}
+func (s *comicService) GetById(id string) (*ComicResponse, error) {
+	comic, err := s.comicRepository.FindById(id)
+	if err != nil {
+		s.logger.WithField("error", id).Warn("comic not found")
+		return nil, response.Exception(404, "comic not found")
+	}
+	result := ComicResponse(*comic)
+	return &result, nil
+}
+func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]ComicResponse], error) {
+	newPage, err := strconv.Atoi(page)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return nil, response.Exception(400, "page most be number")
+	}
+	newSize, err := strconv.Atoi(size)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return nil, response.Exception(400, "size most be number")
+	}
+	comics, err := s.comicRepository.FindAll(newPage, newSize)
+	if err != nil {
+		s.logger.WithError(err).Error("find all comic error")
+		return nil, err
+	}
+	contents := make([]ComicResponse, 0, len(comics))
+	for _, comic := range comics {
+		contents = append(contents, ComicResponse(comic))
+	}
+	totalComic, err := s.comicRepository.CountTotal()
+	if err != nil {
+		s.logger.WithError(err).Error("count total comic error")
+		return nil, err
+	}
+	totalPage := int(math.Ceil(float64(totalComic) / float64(newSize)))
+	result := &pkg.Paging[[]ComicResponse]{
+		Contents:     contents,
+		Page:         newPage,
+		Size:         newSize,
+		TotalPage:    totalPage,
+		TotalElement: int(totalComic),
+	}
+	return result, nil
 }

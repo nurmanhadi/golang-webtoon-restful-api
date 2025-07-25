@@ -20,6 +20,9 @@ type Init struct {
 func (i *Init) Setup(app *fiber.App) {
 	api := app.Group("/api")
 
+	api.Get("/comics", i.ComicHandler.GetAll)
+	api.Get("/comics/:comicId", i.ComicHandler.GetById)
+
 	auth := api.Group("/auth")
 	auth.Post("/register", i.AuthHandler.Register)
 	auth.Post("/login", i.AuthHandler.Login)
@@ -32,5 +35,4 @@ func (i *Init) Setup(app *fiber.App) {
 	comic := api.Group("/comics", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN), string(role.USER)}))
 	comic.Post("/", i.ComicHandler.AddComic)
 	comic.Put("/:comicId", i.ComicHandler.UpdateComic)
-
 }
