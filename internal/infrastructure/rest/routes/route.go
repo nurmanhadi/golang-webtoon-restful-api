@@ -35,4 +35,5 @@ func (i *Init) Setup(app *fiber.App) {
 	comic := api.Group("/comics", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN), string(role.USER)}))
 	comic.Post("/", i.ComicHandler.AddComic)
 	comic.Put("/:comicId", i.ComicHandler.UpdateComic)
+	comic.Delete("/:comicId", i.ComicHandler.Remove)
 }

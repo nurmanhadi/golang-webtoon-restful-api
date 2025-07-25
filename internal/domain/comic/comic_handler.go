@@ -12,6 +12,7 @@ type ComicHandler interface {
 	UpdateComic(c *fiber.Ctx) error
 	GetById(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
+	Remove(c *fiber.Ctx) error
 }
 
 type comicHandler struct {
@@ -81,4 +82,11 @@ func (h *comicHandler) GetAll(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, result)
+}
+func (h *comicHandler) Remove(c *fiber.Ctx) error {
+	comicId := c.Params("comicId")
+	if err := h.ComicService.Remove(comicId); err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
 }

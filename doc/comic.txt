@@ -3,4 +3,4 @@ future
 2. update comic     | done
 3. get by id        | done
 4. get all comic    | done
-5. remove comic     | 
+5. remove comic     | done

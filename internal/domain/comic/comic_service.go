@@ -22,6 +22,7 @@ type ComicService interface {
 	UpdateComic(id string, cover *multipart.FileHeader, request *ComicUpdateRequest) error
 	GetById(id string) (*ComicResponse, error)
 	GetAll(page string, size string) (*pkg.Paging[[]ComicResponse], error)
+	Remove(id string) error
 }
 
 type comicService struct {
@@ -171,5 +172,26 @@ func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]ComicResp
 		TotalPage:    totalPage,
 		TotalElement: int(totalComic),
 	}
+	s.logger.Info("get all comic success")
 	return result, nil
+}
+
+func (s *comicService) Remove(id string) error {
+	comic, err := s.comicRepository.FindById(id)
+	if err != nil {
+		s.logger.WithField("error", id).Error("comic not found")
+		return response.Exception(404, "comic not found")
+	}
+	go func(filename string) {
+		if err := s.s3.RemoveFile(filename); err != nil {
+			s.logger.WithError(err).Error("remove file error")
+			return
+		}
+	}(comic.CoverFilename)
+	if err := s.comicRepository.Delete(id); err != nil {
+		s.logger.WithError(err).Error("comic delete error")
+		return err
+	}
+	s.logger.WithField("data", id).Info("comic delete success")
+	return nil
 }

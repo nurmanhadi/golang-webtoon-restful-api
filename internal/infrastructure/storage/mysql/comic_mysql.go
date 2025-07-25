@@ -40,3 +40,6 @@ func (r *comicStorage) CountTotal() (int64, error) {
 	}
 	return count, nil
 }
+func (r *comicStorage) Delete(id string) error {
+	return r.db.Where("id = ?", id).Delete(&comic.Comic{}).Error
+}
