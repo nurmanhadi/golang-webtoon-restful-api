@@ -1,6 +1,6 @@
 future
-1. add comic
-2. update comic
-3. get by id
-4. get all comic
-5. remove comic
+1. add comic        | done
+2. update comic     | done
+3. get by id        | 
+4. get all comic    |    
+5. remove comic     | 

@@ -17,6 +17,7 @@ import (
 
 type ComicService interface {
 	AddComic(cover *multipart.FileHeader, request *ComicAddRequest) error
+	UpdateComic(id string, cover *multipart.FileHeader, request *ComicUpdateRequest) error
 }
 
 type comicService struct {
@@ -71,6 +72,55 @@ func (s *comicService) AddComic(cover *multipart.FileHeader, request *ComicAddRe
 	if err := s.comicRepository.Save(comic); err != nil {
 		s.logger.WithError(err).Error("comic save error")
 	}
-	s.logger.WithField("data", id).Error("comic save success")
+	s.logger.WithField("data", id).Info("comic save success")
+	return nil
+}
+func (s *comicService) UpdateComic(id string, cover *multipart.FileHeader, request *ComicUpdateRequest) error {
+	if err := s.validation.Struct(request); err != nil {
+		s.logger.WithError(err).Warn("validation error")
+		return err
+	}
+	comic, err := s.comicRepository.FindById(id)
+	if err != nil {
+		s.logger.WithField("error", id).Warn("comic not found")
+		return response.Exception(404, "comic not found")
+	}
+	if request.Title != "" {
+		comic.Title = request.Title
+	}
+	if request.Synopsis != "" {
+		comic.Synopsis = request.Synopsis
+	}
+	if request.Author != "" {
+		comic.Author = request.Author
+	}
+	if request.Artist != "" {
+		comic.Artist = request.Artist
+	}
+	if request.Type != "" {
+		comic.Type = request.Type
+	}
+	if cover != nil {
+		if err := image.Validate(cover.Filename); err != nil {
+			s.logger.WithError(err).Warn("validation error")
+			return response.Exception(400, err.Error())
+		}
+		webpFile, err := image.CompressToCwebp(cover)
+		if err != nil {
+			s.logger.WithError(err).Error("compress avatar error")
+			return err
+		}
+		defer webpFile.Close()
+		defer os.Remove(webpFile.Name())
+
+		if err := s.s3.UploadFile(webpFile, comic.CoverFilename); err != nil {
+			s.logger.WithError(err).Error("s3 upload file error")
+			return err
+		}
+	}
+	if err := s.comicRepository.Save(comic); err != nil {
+		s.logger.WithError(err).Error("comic save error")
+	}
+	s.logger.WithField("data", id).Info("comic update success")
 	return nil
 }
