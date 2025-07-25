@@ -40,14 +40,14 @@ func (s *userService) GetById(id string) (*UserResponse, error) {
 		s.logger.WithField("error", id).Warn("user not found")
 		return nil, response.Exception(404, "user not found")
 	}
-	response := &UserResponse{
+	result := &UserResponse{
 		Id:             user.Id,
 		Username:       user.Username,
 		AvatarFilename: user.AvatarFilename,
 		AvatarUrl:      user.AvatarUrl,
 	}
 	s.logger.WithField("data", user.Id).Info("get user by id success")
-	return response, nil
+	return result, nil
 }
 func (s *userService) UpdateUsername(id string, request UserUpdateUsernameRequest) error {
 	if err := s.validation.Struct(&request); err != nil {

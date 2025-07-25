@@ -82,9 +82,9 @@ func (s *authService) Login(request AuthRequest) (*AuthResponse, error) {
 		s.logger.WithError(err).Error("generate access token error")
 		return nil, err
 	}
-	response := &AuthResponse{
+	result := &AuthResponse{
 		AccessToken: token,
 	}
 	s.logger.WithField("data", user.Username).Info("login success")
-	return response, nil
+	return result, nil
 }
