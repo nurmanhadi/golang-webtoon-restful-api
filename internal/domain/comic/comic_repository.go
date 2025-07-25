@@ -6,4 +6,6 @@ type ComicRepository interface {
 	FindAll(page int, size int) ([]Comic, error)
 	CountTotal() (int64, error)
 	Delete(id string) error
+	Search(key string, page int, size int) ([]Comic, error)
+	CountTotalByKeyword(key string) (int64, error)
 }

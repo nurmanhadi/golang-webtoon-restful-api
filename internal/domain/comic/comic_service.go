@@ -23,6 +23,7 @@ type ComicService interface {
 	GetById(id string) (*ComicResponse, error)
 	GetAll(page string, size string) (*pkg.Paging[[]ComicResponse], error)
 	Remove(id string) error
+	Search(keyword string, page string, size string) (*pkg.Paging[[]ComicResponse], error)
 }
 
 type comicService struct {
@@ -194,4 +195,41 @@ func (s *comicService) Remove(id string) error {
 	}
 	s.logger.WithField("data", id).Info("comic delete success")
 	return nil
+}
+
+func (s *comicService) Search(keyword string, page string, size string) (*pkg.Paging[[]ComicResponse], error) {
+	newPage, err := strconv.Atoi(page)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return nil, response.Exception(400, "page most be number")
+	}
+	newSize, err := strconv.Atoi(size)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return nil, response.Exception(400, "size most be number")
+	}
+	comics, err := s.comicRepository.Search(keyword, newPage, newSize)
+	if err != nil {
+		s.logger.WithError(err).Error("search comic error")
+		return nil, err
+	}
+	totalElement, err := s.comicRepository.CountTotalByKeyword(keyword)
+	if err != nil {
+		s.logger.WithError(err).Error("count comic by keyword error")
+		return nil, err
+	}
+	contents := make([]ComicResponse, 0, len(comics))
+	for _, comic := range comics {
+		contents = append(contents, ComicResponse(comic))
+	}
+	totalPage := int(math.Ceil(float64(totalElement) / float64(newSize)))
+	result := &pkg.Paging[[]ComicResponse]{
+		Contents:     contents,
+		Page:         newPage,
+		Size:         newSize,
+		TotalPage:    totalPage,
+		TotalElement: int(totalElement),
+	}
+	s.logger.WithField("data", keyword).Info("comic search success")
+	return result, nil
 }

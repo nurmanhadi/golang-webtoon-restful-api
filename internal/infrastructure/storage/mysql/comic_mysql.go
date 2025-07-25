@@ -43,3 +43,28 @@ func (r *comicStorage) CountTotal() (int64, error) {
 func (r *comicStorage) Delete(id string) error {
 	return r.db.Where("id = ?", id).Delete(&comic.Comic{}).Error
 }
+func (r *comicStorage) Search(key string, page int, size int) ([]comic.Comic, error) {
+	var comics []comic.Comic
+	keyword := "%" + key + "%"
+	err := r.db.
+		Offset((page-1)*size).
+		Limit(size).
+		Where("title  LIKE ? OR author LIKE ? OR artist LIKE ?", keyword, keyword, keyword).
+		Find(&comics).Error
+	if err != nil {
+		return nil, err
+	}
+	return comics, nil
+}
+func (r *comicStorage) CountTotalByKeyword(key string) (int64, error) {
+	var count int64
+	keyword := "%" + key + "%"
+	err := r.db.
+		Model(&comic.Comic{}).
+		Where("title  LIKE ? OR author LIKE ? OR artist LIKE ?", keyword, keyword, keyword).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

@@ -20,8 +20,11 @@ type Init struct {
 func (i *Init) Setup(app *fiber.App) {
 	api := app.Group("/api")
 
+	// public
 	api.Get("/comics", i.ComicHandler.GetAll)
 	api.Get("/comics/:comicId", i.ComicHandler.GetById)
+
+	api.Get("/search", i.ComicHandler.Search)
 
 	auth := api.Group("/auth")
 	auth.Post("/register", i.AuthHandler.Register)

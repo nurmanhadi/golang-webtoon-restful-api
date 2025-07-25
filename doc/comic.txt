@@ -4,3 +4,4 @@ future
 3. get by id        | done
 4. get all comic    | done
 5. remove comic     | done
+6. search           | done
