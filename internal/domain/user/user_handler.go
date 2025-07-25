@@ -32,7 +32,7 @@ func (h *userHandler) UpdateUsername(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}
-	if err := h.userService.UpdateUsername(userId, *request); err != nil {
+	if err := h.userService.UpdateUsername(userId, request); err != nil {
 		return err
 	}
 	return response.Success(c, 200, "OK")

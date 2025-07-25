@@ -13,8 +13,8 @@ import (
 )
 
 type AuthService interface {
-	Register(request AuthRequest) error
-	Login(request AuthRequest) (*AuthResponse, error)
+	Register(request *AuthRequest) error
+	Login(request *AuthRequest) (*AuthResponse, error)
 }
 type authService struct {
 	logger         *logrus.Logger
@@ -29,8 +29,8 @@ func NewAuthService(logger *logrus.Logger, validation *validator.Validate, authR
 		authRepository: authRepository,
 	}
 }
-func (s *authService) Register(request AuthRequest) error {
-	if err := s.validation.Struct(&request); err != nil {
+func (s *authService) Register(request *AuthRequest) error {
+	if err := s.validation.Struct(request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
 	}
@@ -63,8 +63,8 @@ func (s *authService) Register(request AuthRequest) error {
 	return nil
 }
 
-func (s *authService) Login(request AuthRequest) (*AuthResponse, error) {
-	if err := s.validation.Struct(&request); err != nil {
+func (s *authService) Login(request *AuthRequest) (*AuthResponse, error) {
+	if err := s.validation.Struct(request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return nil, err
 	}

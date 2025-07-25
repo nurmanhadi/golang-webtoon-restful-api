@@ -16,7 +16,7 @@ import (
 
 type UserService interface {
 	GetById(id string) (*UserResponse, error)
-	UpdateUsername(id string, request UserUpdateUsernameRequest) error
+	UpdateUsername(id string, request *UserUpdateUsernameRequest) error
 	UploadAvatar(id string, avatar *multipart.FileHeader) error
 }
 type userService struct {
@@ -49,8 +49,8 @@ func (s *userService) GetById(id string) (*UserResponse, error) {
 	s.logger.WithField("data", user.Id).Info("get user by id success")
 	return result, nil
 }
-func (s *userService) UpdateUsername(id string, request UserUpdateUsernameRequest) error {
-	if err := s.validation.Struct(&request); err != nil {
+func (s *userService) UpdateUsername(id string, request *UserUpdateUsernameRequest) error {
+	if err := s.validation.Struct(request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
 	}

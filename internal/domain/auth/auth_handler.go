@@ -23,7 +23,7 @@ func (h *authHandler) Register(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}
-	if err := h.authService.Register(*request); err != nil {
+	if err := h.authService.Register(request); err != nil {
 		return err
 	}
 	return response.Success(c, 201, "OK")
@@ -33,7 +33,7 @@ func (h *authHandler) Login(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}
-	result, err := h.authService.Login(*request)
+	result, err := h.authService.Login(request)
 	if err != nil {
 		return err
 	}
