@@ -50,19 +50,21 @@ func (s *comicService) AddComic(cover *multipart.FileHeader, request *ComicAddRe
 		s.logger.WithError(err).Warn("validation error")
 		return response.Exception(400, err.Error())
 	}
-	webpFile, err := image.CompressToCwebp(cover)
-	if err != nil {
-		s.logger.WithError(err).Error("compress avatar error")
-		return err
-	}
-	defer webpFile.Close()
-	defer os.Remove(webpFile.Name())
-
 	filename := fmt.Sprintf("%d.webp", time.Now().Unix())
-	if err := s.s3.UploadFile(webpFile, filename); err != nil {
-		s.logger.WithError(err).Error("s3 upload file error")
-		return err
-	}
+	go func(filename string) {
+		webpFile, err := image.CompressToCwebp(cover)
+		if err != nil {
+			s.logger.WithError(err).Error("compress avatar error")
+			return
+		}
+		defer webpFile.Close()
+		defer os.Remove(webpFile.Name())
+
+		if err := s.s3.UploadFile(webpFile, filename); err != nil {
+			s.logger.WithError(err).Error("s3 upload file error")
+			return
+		}
+	}(filename)
 	coverUrl := pkg.GenerateUrl(filename)
 	id := uuid.NewString()
 	comic := &Comic{
@@ -111,18 +113,20 @@ func (s *comicService) UpdateComic(id string, cover *multipart.FileHeader, reque
 			s.logger.WithError(err).Warn("validation error")
 			return response.Exception(400, err.Error())
 		}
-		webpFile, err := image.CompressToCwebp(cover)
-		if err != nil {
-			s.logger.WithError(err).Error("compress avatar error")
-			return err
-		}
-		defer webpFile.Close()
-		defer os.Remove(webpFile.Name())
+		go func(filename string) {
+			webpFile, err := image.CompressToCwebp(cover)
+			if err != nil {
+				s.logger.WithError(err).Error("compress avatar error")
+				return
+			}
+			defer webpFile.Close()
+			defer os.Remove(webpFile.Name())
 
-		if err := s.s3.UploadFile(webpFile, comic.CoverFilename); err != nil {
-			s.logger.WithError(err).Error("s3 upload file error")
-			return err
-		}
+			if err := s.s3.UploadFile(webpFile, comic.CoverFilename); err != nil {
+				s.logger.WithError(err).Error("s3 upload file error")
+				return
+			}
+		}(comic.CoverFilename)
 	}
 	comic.UpdatedAt = time.Now()
 	if err := s.comicRepository.Save(comic); err != nil {
