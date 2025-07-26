@@ -1,0 +1,79 @@
+package genre
+
+import (
+	"strconv"
+	"webtoon/pkg/response"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
+)
+
+type GenreService interface {
+	AddGenre(request *GenreAddRequest) error
+	GetAll() ([]GenreResponse, error)
+	Remove(id string) error
+}
+type genreService struct {
+	logger          *logrus.Logger
+	validation      *validator.Validate
+	genreReporitory GenreRepository
+}
+
+func NewGenreService(logger *logrus.Logger, validation *validator.Validate, genreReporitory GenreRepository) GenreService {
+	return &genreService{
+		logger:          logger,
+		validation:      validation,
+		genreReporitory: genreReporitory,
+	}
+}
+
+func (s *genreService) AddGenre(request *GenreAddRequest) error {
+	if err := s.validation.Struct(request); err != nil {
+		s.logger.WithError(err).Warn("validation error")
+		return err
+	}
+	genre := &Genre{
+		Name: request.Name,
+	}
+	if err := s.genreReporitory.Save(genre); err != nil {
+		s.logger.WithError(err).Error("genre save error")
+		return err
+	}
+	s.logger.Info("add genre success")
+	return nil
+}
+func (s *genreService) GetAll() ([]GenreResponse, error) {
+	genres, err := s.genreReporitory.FindAll()
+	if err != nil {
+		s.logger.WithError(err).Error("find all genres error")
+		return nil, err
+	}
+	var result []GenreResponse
+	for _, genre := range genres {
+		result = append(result, GenreResponse(genre))
+	}
+	s.logger.Info("get all genres success")
+	return result, nil
+}
+func (s *genreService) Remove(id string) error {
+	newId, err := strconv.Atoi(id)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return response.Exception(400, "id most be number")
+	}
+	count, err := s.genreReporitory.Count(newId)
+	if err != nil {
+		s.logger.WithError(err).Warn("count genre error")
+		return err
+	}
+	if count < 1 {
+		s.logger.WithField("error", id).Warn("genre not found")
+		return response.Exception(404, "genre not found")
+	}
+	if err := s.genreReporitory.Remove(newId); err != nil {
+		s.logger.WithError(err).Error("genre remove error")
+		return err
+	}
+	s.logger.Info("remove genres success")
+	return nil
+}

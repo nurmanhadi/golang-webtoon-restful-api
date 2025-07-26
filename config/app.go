@@ -4,6 +4,7 @@ import (
 	"context"
 	"webtoon/internal/domain/auth"
 	"webtoon/internal/domain/comic"
+	"webtoon/internal/domain/genre"
 	"webtoon/internal/domain/user"
 
 	"webtoon/internal/infrastructure/rest/middleware"
@@ -33,16 +34,19 @@ func Initialize(conf *Configuration) {
 	authStore := mysql.NewAuthStorage(conf.DB)
 	userStore := mysql.NewUserStorage(conf.DB)
 	comicStore := mysql.NewComicStorage(conf.DB)
+	genreStore := mysql.NewGenreStorage(conf.DB)
 
 	// service
 	authServ := auth.NewAuthService(conf.Logger, conf.Validation, authStore)
 	userServ := user.NewUserService(conf.Logger, conf.Validation, userStore, s3Store)
 	comicServ := comic.NewComicService(conf.Logger, conf.Validation, comicStore, s3Store)
+	genreServ := genre.NewGenreService(conf.Logger, conf.Validation, genreStore)
 
 	// handler
 	authHand := auth.NewAuthHandler(authServ)
 	userHand := user.NewUserHandler(userServ)
 	comicHand := comic.NewComicHandler(comicServ)
+	genreHand := genre.NewGenreHandler(genreServ)
 
 	// middleware
 	middleware := &middleware.Inject{
@@ -54,6 +58,7 @@ func Initialize(conf *Configuration) {
 		AuthHandler:  authHand,
 		UserHandler:  userHand,
 		ComicHandler: comicHand,
+		GenreHandler: genreHand,
 	}
 	route.Setup(conf.App)
 }

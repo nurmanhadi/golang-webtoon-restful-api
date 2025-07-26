@@ -1,0 +1,4 @@
+feature
+1. add genre        | done
+2. remove genre     | done
+3. get all genre    | done
