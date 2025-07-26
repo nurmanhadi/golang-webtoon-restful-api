@@ -9,11 +9,12 @@ import (
 )
 
 type Init struct {
-	Middleware   *middleware.Inject
-	AuthHandler  handler.AuthHandler
-	UserHandler  handler.UserHandler
-	ComicHandler handler.ComicHandler
-	GenreHandler handler.GenreHandler
+	Middleware        *middleware.Inject
+	AuthHandler       handler.AuthHandler
+	UserHandler       handler.UserHandler
+	ComicHandler      handler.ComicHandler
+	GenreHandler      handler.GenreHandler
+	ComicGenreHandler handler.ComicGenreHandler
 }
 
 func (i *Init) Setup(app *fiber.App) {
@@ -47,4 +48,9 @@ func (i *Init) Setup(app *fiber.App) {
 	genre.Post("/", i.GenreHandler.AddGenre)
 	genre.Get("/", i.GenreHandler.GetAll)
 	genre.Delete("/:genreId", i.GenreHandler.Remove)
+
+	// comic genre
+	comicGenre := api.Group("/comic-genre", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN)}))
+	comicGenre.Post("/", i.ComicGenreHandler.AddComicGenre)
+	comicGenre.Delete("/comics/:comicId/genres/:genreId", i.ComicGenreHandler.RemoveComicGenreByComicIdAndGenreId)
 }

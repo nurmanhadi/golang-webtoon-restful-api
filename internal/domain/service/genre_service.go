@@ -19,14 +19,14 @@ type GenreService interface {
 type genreService struct {
 	logger          *logrus.Logger
 	validation      *validator.Validate
-	genreReporitory repository.GenreRepository
+	genreRepository repository.GenreRepository
 }
 
-func NewGenreService(logger *logrus.Logger, validation *validator.Validate, genreReporitory repository.GenreRepository) GenreService {
+func NewGenreService(logger *logrus.Logger, validation *validator.Validate, genreRepository repository.GenreRepository) GenreService {
 	return &genreService{
 		logger:          logger,
 		validation:      validation,
-		genreReporitory: genreReporitory,
+		genreRepository: genreRepository,
 	}
 }
 
@@ -38,7 +38,7 @@ func (s *genreService) AddGenre(request *dto.GenreAddRequest) error {
 	genre := &entity.Genre{
 		Name: request.Name,
 	}
-	if err := s.genreReporitory.Save(genre); err != nil {
+	if err := s.genreRepository.Save(genre); err != nil {
 		s.logger.WithError(err).Error("genre save error")
 		return err
 	}
@@ -46,7 +46,7 @@ func (s *genreService) AddGenre(request *dto.GenreAddRequest) error {
 	return nil
 }
 func (s *genreService) GetAll() ([]dto.GenreResponse, error) {
-	genres, err := s.genreReporitory.FindAll()
+	genres, err := s.genreRepository.FindAll()
 	if err != nil {
 		s.logger.WithError(err).Error("find all genres error")
 		return nil, err
@@ -67,7 +67,7 @@ func (s *genreService) Remove(id string) error {
 		s.logger.WithError(err).Warn("parse string to int error")
 		return response.Exception(400, "id most be number")
 	}
-	count, err := s.genreReporitory.Count(newId)
+	count, err := s.genreRepository.Count(newId)
 	if err != nil {
 		s.logger.WithError(err).Warn("count genre error")
 		return err
@@ -76,7 +76,7 @@ func (s *genreService) Remove(id string) error {
 		s.logger.WithField("error", id).Warn("genre not found")
 		return response.Exception(404, "genre not found")
 	}
-	if err := s.genreReporitory.Remove(newId); err != nil {
+	if err := s.genreRepository.Remove(newId); err != nil {
 		s.logger.WithError(err).Error("genre remove error")
 		return err
 	}

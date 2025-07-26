@@ -1,4 +1,4 @@
-CREATE TABLE comic_genre(
+CREATE TABLE comic_genres(
     id int PRIMARY KEY AUTO_INCREMENT,
     comic_id VARCHAR(36) NOT NULL,
     genre_id INT NOT NULL,

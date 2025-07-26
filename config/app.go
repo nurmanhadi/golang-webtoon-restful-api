@@ -33,18 +33,21 @@ func Initialize(conf *Configuration) {
 	userStore := mysql.NewUserStorage(conf.DB)
 	comicStore := mysql.NewComicStorage(conf.DB)
 	genreStore := mysql.NewGenreStorage(conf.DB)
+	comicGenreStore := mysql.NewComicGenreStorage(conf.DB)
 
 	// service
 	authServ := service.NewAuthService(conf.Logger, conf.Validation, authStore)
 	userServ := service.NewUserService(conf.Logger, conf.Validation, userStore, s3Store)
 	comicServ := service.NewComicService(conf.Logger, conf.Validation, comicStore, s3Store)
 	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreStore)
+	comicGenreServ := service.NewComicGenreService(conf.Logger, conf.Validation, comicGenreStore, comicStore, genreStore)
 
 	// handler
 	authHand := handler.NewAuthHandler(authServ)
 	userHand := handler.NewUserHandler(userServ)
 	comicHand := handler.NewComicHandler(comicServ)
 	genreHand := handler.NewGenreHandler(genreServ)
+	comicGenreHand := handler.NewComicGenreHandler(comicGenreServ)
 
 	// middleware
 	middleware := &middleware.Inject{
@@ -52,11 +55,12 @@ func Initialize(conf *Configuration) {
 	}
 
 	route := &routes.Init{
-		Middleware:   middleware,
-		AuthHandler:  authHand,
-		UserHandler:  userHand,
-		ComicHandler: comicHand,
-		GenreHandler: genreHand,
+		Middleware:        middleware,
+		AuthHandler:       authHand,
+		UserHandler:       userHand,
+		ComicHandler:      comicHand,
+		GenreHandler:      genreHand,
+		ComicGenreHandler: comicGenreHand,
 	}
 	route.Setup(conf.App)
 }

@@ -1,4 +1,3 @@
 skenario
-1. add                      |
-2. delete                   |
-3. get comic by comic id    |
+1. add                              | done
+2. delete by comic id and genre id  | done
