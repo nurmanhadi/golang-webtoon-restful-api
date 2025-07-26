@@ -28,6 +28,14 @@ func (r *genreStorage) FindAll() ([]entity.Genre, error) {
 	}
 	return genres, nil
 }
+func (r *genreStorage) FindById(id int) (*entity.Genre, error) {
+	var genre *entity.Genre
+	err := r.db.Where("id = ?", id).First(&genre).Error
+	if err != nil {
+		return nil, err
+	}
+	return genre, nil
+}
 func (r *genreStorage) Count(id int) (int64, error) {
 	var count int64
 	err := r.db.Model(&entity.Genre{}).Where("id = ?", id).Count(&count).Error

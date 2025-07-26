@@ -39,7 +39,7 @@ func Initialize(conf *Configuration) {
 	authServ := service.NewAuthService(conf.Logger, conf.Validation, authStore)
 	userServ := service.NewUserService(conf.Logger, conf.Validation, userStore, s3Store)
 	comicServ := service.NewComicService(conf.Logger, conf.Validation, comicStore, s3Store)
-	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreStore)
+	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreStore, comicGenreStore)
 	comicGenreServ := service.NewComicGenreService(conf.Logger, conf.Validation, comicGenreStore, comicStore, genreStore)
 
 	// handler

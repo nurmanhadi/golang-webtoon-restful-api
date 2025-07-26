@@ -26,6 +26,10 @@ func (i *Init) Setup(app *fiber.App) {
 
 	api.Get("/search", i.ComicHandler.Search)
 
+	api.Get("/genres", i.GenreHandler.GetAll)
+	api.Get("/genres", i.GenreHandler.GetAll)
+	api.Get("/genres/:genreId", i.GenreHandler.GetById)
+
 	// auth
 	auth := api.Group("/auth")
 	auth.Post("/register", i.AuthHandler.Register)
@@ -46,7 +50,6 @@ func (i *Init) Setup(app *fiber.App) {
 	// genres
 	genre := api.Group("/genres", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN)}))
 	genre.Post("/", i.GenreHandler.AddGenre)
-	genre.Get("/", i.GenreHandler.GetAll)
 	genre.Delete("/:genreId", i.GenreHandler.Remove)
 
 	// comic genre

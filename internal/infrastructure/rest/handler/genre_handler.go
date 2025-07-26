@@ -12,6 +12,7 @@ type GenreHandler interface {
 	AddGenre(c *fiber.Ctx) error
 	GetAll(c *fiber.Ctx) error
 	Remove(c *fiber.Ctx) error
+	GetById(c *fiber.Ctx) error
 }
 
 type genreHandler struct {
@@ -33,6 +34,16 @@ func (h *genreHandler) AddGenre(c *fiber.Ctx) error {
 }
 func (h *genreHandler) GetAll(c *fiber.Ctx) error {
 	result, err := h.genreService.GetAll()
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 201, result)
+}
+func (h *genreHandler) GetById(c *fiber.Ctx) error {
+	genreId := c.Params("genreId")
+	page := c.Query("page", "1")
+	size := c.Query("size", "10")
+	result, err := h.genreService.GetById(genreId, page, size)
 	if err != nil {
 		return err
 	}

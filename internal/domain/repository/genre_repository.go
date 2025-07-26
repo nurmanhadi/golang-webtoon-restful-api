@@ -7,4 +7,5 @@ type GenreRepository interface {
 	Remove(id int) error
 	FindAll() ([]entity.Genre, error)
 	Count(id int) (int64, error)
+	FindById(id int) (*entity.Genre, error)
 }
