@@ -67,12 +67,12 @@ func (s *genreService) Remove(id string) error {
 		s.logger.WithError(err).Warn("parse string to int error")
 		return response.Exception(400, "id most be number")
 	}
-	count, err := s.genreRepository.Count(newId)
+	countGenre, err := s.genreRepository.Count(newId)
 	if err != nil {
 		s.logger.WithError(err).Warn("count genre error")
 		return err
 	}
-	if count < 1 {
+	if countGenre < 1 {
 		s.logger.WithField("error", id).Warn("genre not found")
 		return response.Exception(404, "genre not found")
 	}

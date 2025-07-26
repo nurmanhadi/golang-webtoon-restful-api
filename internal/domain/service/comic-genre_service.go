@@ -37,9 +37,13 @@ func (s *comicGenreService) AddComicGenre(request *dto.ComicGenreAddRequest) err
 		s.logger.WithError(err).Warn("validation error")
 		return err
 	}
-	_, err := s.comicRepository.FindById(request.ComicId)
+	countComic, err := s.comicRepository.CountById(request.ComicId)
 	if err != nil {
-		s.logger.WithField("error", request.ComicId).Error("comic not found")
+		s.logger.WithError(err).Warn("count comic error")
+		return err
+	}
+	if countComic < 1 {
+		s.logger.WithField("error", request.ComicId).Warn("comic not found")
 		return response.Exception(404, "comic not found")
 	}
 	countGenre, err := s.genreRepository.Count(request.GenreId)
@@ -63,9 +67,13 @@ func (s *comicGenreService) AddComicGenre(request *dto.ComicGenreAddRequest) err
 	return nil
 }
 func (s *comicGenreService) RemoveComicGenreByComicIdAndGenreId(comicId string, genreId string) error {
-	_, err := s.comicRepository.FindById(comicId)
+	countComic, err := s.comicRepository.CountById(comicId)
 	if err != nil {
-		s.logger.WithField("error", comicId).Error("comic not found")
+		s.logger.WithError(err).Warn("count comic error")
+		return err
+	}
+	if countComic < 1 {
+		s.logger.WithField("error", comicId).Warn("comic not found")
 		return response.Exception(404, "comic not found")
 	}
 	newGenreId, err := strconv.Atoi(genreId)

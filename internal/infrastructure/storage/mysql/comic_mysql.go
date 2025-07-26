@@ -19,7 +19,7 @@ func (r *comicStorage) Save(comic *entity.Comic) error {
 }
 func (r *comicStorage) FindById(id string) (*entity.Comic, error) {
 	var comic *entity.Comic
-	err := r.db.Where("id = ?", id).First(&comic).Error
+	err := r.db.Where("id = ?", id).Preload("ComicGenre.Genre").First(&comic).Error
 	if err != nil {
 		return nil, err
 	}
@@ -36,6 +36,14 @@ func (r *comicStorage) FindAll(page int, size int) ([]entity.Comic, error) {
 func (r *comicStorage) CountTotal() (int64, error) {
 	var count int64
 	err := r.db.Model(&entity.Comic{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+func (r *comicStorage) CountById(id string) (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Comic{}).Where("id = ?", id).Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
