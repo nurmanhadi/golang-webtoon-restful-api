@@ -1,6 +1,8 @@
-package genre
+package handler
 
 import (
+	"webtoon/internal/domain/dto"
+	"webtoon/internal/domain/service"
 	"webtoon/pkg/response"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,14 +15,14 @@ type GenreHandler interface {
 }
 
 type genreHandler struct {
-	genreService GenreService
+	genreService service.GenreService
 }
 
-func NewGenreHandler(genreService GenreService) GenreHandler {
+func NewGenreHandler(genreService service.GenreService) GenreHandler {
 	return &genreHandler{genreService: genreService}
 }
 func (h *genreHandler) AddGenre(c *fiber.Ctx) error {
-	request := new(GenreAddRequest)
+	request := new(dto.GenreAddRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}

@@ -1,4 +1,4 @@
-package comic
+package entity
 
 import (
 	"time"
@@ -16,4 +16,5 @@ type Comic struct {
 	CoverUrl      string         `gorm:"type:varchar(255);not null"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	ComicGenre    []ComicGenre
 }

@@ -1,10 +1,7 @@
 package routes
 
 import (
-	"webtoon/internal/domain/auth"
-	"webtoon/internal/domain/comic"
-	"webtoon/internal/domain/genre"
-	"webtoon/internal/domain/user"
+	"webtoon/internal/infrastructure/rest/handler"
 	"webtoon/internal/infrastructure/rest/middleware"
 	"webtoon/pkg/role"
 
@@ -13,10 +10,10 @@ import (
 
 type Init struct {
 	Middleware   *middleware.Inject
-	AuthHandler  auth.AuthHandler
-	UserHandler  user.UserHandler
-	ComicHandler comic.ComicHandler
-	GenreHandler genre.GenreHandler
+	AuthHandler  handler.AuthHandler
+	UserHandler  handler.UserHandler
+	ComicHandler handler.ComicHandler
+	GenreHandler handler.GenreHandler
 }
 
 func (i *Init) Setup(app *fiber.App) {

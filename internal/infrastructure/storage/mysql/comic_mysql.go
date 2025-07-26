@@ -1,7 +1,8 @@
 package mysql
 
 import (
-	"webtoon/internal/domain/comic"
+	"webtoon/internal/domain/entity"
+	"webtoon/internal/domain/repository"
 
 	"gorm.io/gorm"
 )
@@ -10,22 +11,22 @@ type comicStorage struct {
 	db *gorm.DB
 }
 
-func NewComicStorage(db *gorm.DB) comic.ComicRepository {
+func NewComicStorage(db *gorm.DB) repository.ComicRepository {
 	return &comicStorage{db: db}
 }
-func (r *comicStorage) Save(comic *comic.Comic) error {
+func (r *comicStorage) Save(comic *entity.Comic) error {
 	return r.db.Save(&comic).Error
 }
-func (r *comicStorage) FindById(id string) (*comic.Comic, error) {
-	var comic *comic.Comic
+func (r *comicStorage) FindById(id string) (*entity.Comic, error) {
+	var comic *entity.Comic
 	err := r.db.Where("id = ?", id).First(&comic).Error
 	if err != nil {
 		return nil, err
 	}
 	return comic, nil
 }
-func (r *comicStorage) FindAll(page int, size int) ([]comic.Comic, error) {
-	var comics []comic.Comic
+func (r *comicStorage) FindAll(page int, size int) ([]entity.Comic, error) {
+	var comics []entity.Comic
 	err := r.db.Offset((page - 1) * size).Limit(size).Find(&comics).Error
 	if err != nil {
 		return nil, err
@@ -34,17 +35,17 @@ func (r *comicStorage) FindAll(page int, size int) ([]comic.Comic, error) {
 }
 func (r *comicStorage) CountTotal() (int64, error) {
 	var count int64
-	err := r.db.Model(&comic.Comic{}).Count(&count).Error
+	err := r.db.Model(&entity.Comic{}).Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
 	return count, nil
 }
 func (r *comicStorage) Delete(id string) error {
-	return r.db.Where("id = ?", id).Delete(&comic.Comic{}).Error
+	return r.db.Where("id = ?", id).Delete(&entity.Comic{}).Error
 }
-func (r *comicStorage) Search(key string, page int, size int) ([]comic.Comic, error) {
-	var comics []comic.Comic
+func (r *comicStorage) Search(key string, page int, size int) ([]entity.Comic, error) {
+	var comics []entity.Comic
 	keyword := "%" + key + "%"
 	err := r.db.
 		Offset((page-1)*size).
@@ -60,7 +61,7 @@ func (r *comicStorage) CountTotalByKeyword(key string) (int64, error) {
 	var count int64
 	keyword := "%" + key + "%"
 	err := r.db.
-		Model(&comic.Comic{}).
+		Model(&entity.Comic{}).
 		Where("title  LIKE ? OR author LIKE ? OR artist LIKE ?", keyword, keyword, keyword).
 		Count(&count).Error
 	if err != nil {

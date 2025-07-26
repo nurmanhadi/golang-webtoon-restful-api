@@ -1,0 +1,4 @@
+skenario
+1. add                      |
+2. delete                   |
+3. get comic by comic id    |

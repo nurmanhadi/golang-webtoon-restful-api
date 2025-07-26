@@ -1,6 +1,8 @@
-package comic
+package handler
 
 import (
+	"webtoon/internal/domain/dto"
+	"webtoon/internal/domain/service"
 	comictype "webtoon/pkg/comic-type"
 	"webtoon/pkg/response"
 
@@ -17,10 +19,10 @@ type ComicHandler interface {
 }
 
 type comicHandler struct {
-	ComicService ComicService
+	ComicService service.ComicService
 }
 
-func NewComicHandler(ComicService ComicService) ComicHandler {
+func NewComicHandler(ComicService service.ComicService) ComicHandler {
 	return &comicHandler{ComicService: ComicService}
 }
 func (h *comicHandler) AddComic(c *fiber.Ctx) error {
@@ -34,7 +36,7 @@ func (h *comicHandler) AddComic(c *fiber.Ctx) error {
 	artist := c.FormValue("artist", "")
 	comicType := c.FormValue("type", "")
 
-	request := &ComicAddRequest{
+	request := &dto.ComicAddRequest{
 		Title:    title,
 		Synopsis: synopsis,
 		Author:   author,
@@ -55,7 +57,7 @@ func (h *comicHandler) UpdateComic(c *fiber.Ctx) error {
 	artist := c.FormValue("artist", "")
 	comicType := c.FormValue("type", "")
 
-	request := &ComicUpdateRequest{
+	request := &dto.ComicUpdateRequest{
 		Title:    title,
 		Synopsis: synopsis,
 		Author:   author,

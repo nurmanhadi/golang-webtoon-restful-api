@@ -1,6 +1,8 @@
-package auth
+package handler
 
 import (
+	"webtoon/internal/domain/dto"
+	"webtoon/internal/domain/service"
 	"webtoon/pkg/response"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,15 +13,15 @@ type AuthHandler interface {
 	Login(c *fiber.Ctx) error
 }
 type authHandler struct {
-	authService AuthService
+	authService service.AuthService
 }
 
-func NewAuthHandler(authService AuthService) AuthHandler {
+func NewAuthHandler(authService service.AuthService) AuthHandler {
 	return &authHandler{authService: authService}
 }
 
 func (h *authHandler) Register(c *fiber.Ctx) error {
-	request := new(AuthRequest)
+	request := new(dto.AuthRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}
@@ -29,7 +31,7 @@ func (h *authHandler) Register(c *fiber.Ctx) error {
 	return response.Success(c, 201, "OK")
 }
 func (h *authHandler) Login(c *fiber.Ctx) error {
-	request := new(AuthRequest)
+	request := new(dto.AuthRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return response.Exception(400, "error parse json")
 	}

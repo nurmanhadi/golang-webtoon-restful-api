@@ -1,4 +1,4 @@
-package comic
+package service
 
 import (
 	"fmt"
@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"webtoon/internal/domain/dto"
+	"webtoon/internal/domain/entity"
+	"webtoon/internal/domain/repository"
 	"webtoon/internal/infrastructure/storage/s3"
 	"webtoon/pkg"
 	"webtoon/pkg/image"
@@ -18,22 +21,22 @@ import (
 )
 
 type ComicService interface {
-	AddComic(cover *multipart.FileHeader, request *ComicAddRequest) error
-	UpdateComic(id string, cover *multipart.FileHeader, request *ComicUpdateRequest) error
-	GetById(id string) (*ComicResponse, error)
-	GetAll(page string, size string) (*pkg.Paging[[]ComicResponse], error)
+	AddComic(cover *multipart.FileHeader, request *dto.ComicAddRequest) error
+	UpdateComic(id string, cover *multipart.FileHeader, request *dto.ComicUpdateRequest) error
+	GetById(id string) (*dto.ComicResponse, error)
+	GetAll(page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
 	Remove(id string) error
-	Search(keyword string, page string, size string) (*pkg.Paging[[]ComicResponse], error)
+	Search(keyword string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
 }
 
 type comicService struct {
 	logger          *logrus.Logger
 	validation      *validator.Validate
-	comicRepository ComicRepository
+	comicRepository repository.ComicRepository
 	s3              s3.S3Storage
 }
 
-func NewComicService(logger *logrus.Logger, validation *validator.Validate, comicRepository ComicRepository, s3 s3.S3Storage) ComicService {
+func NewComicService(logger *logrus.Logger, validation *validator.Validate, comicRepository repository.ComicRepository, s3 s3.S3Storage) ComicService {
 	return &comicService{
 		logger:          logger,
 		validation:      validation,
@@ -41,7 +44,7 @@ func NewComicService(logger *logrus.Logger, validation *validator.Validate, comi
 		s3:              s3,
 	}
 }
-func (s *comicService) AddComic(cover *multipart.FileHeader, request *ComicAddRequest) error {
+func (s *comicService) AddComic(cover *multipart.FileHeader, request *dto.ComicAddRequest) error {
 	if err := s.validation.Struct(request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
@@ -67,7 +70,7 @@ func (s *comicService) AddComic(cover *multipart.FileHeader, request *ComicAddRe
 	}(filename)
 	coverUrl := pkg.GenerateUrl(filename)
 	id := uuid.NewString()
-	comic := &Comic{
+	comic := &entity.Comic{
 		Id:            id,
 		Title:         request.Title,
 		Synopsis:      request.Synopsis,
@@ -83,7 +86,7 @@ func (s *comicService) AddComic(cover *multipart.FileHeader, request *ComicAddRe
 	s.logger.WithField("data", id).Info("comic save success")
 	return nil
 }
-func (s *comicService) UpdateComic(id string, cover *multipart.FileHeader, request *ComicUpdateRequest) error {
+func (s *comicService) UpdateComic(id string, cover *multipart.FileHeader, request *dto.ComicUpdateRequest) error {
 	if err := s.validation.Struct(request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
@@ -135,16 +138,27 @@ func (s *comicService) UpdateComic(id string, cover *multipart.FileHeader, reque
 	s.logger.WithField("data", id).Info("comic update success")
 	return nil
 }
-func (s *comicService) GetById(id string) (*ComicResponse, error) {
+func (s *comicService) GetById(id string) (*dto.ComicResponse, error) {
 	comic, err := s.comicRepository.FindById(id)
 	if err != nil {
 		s.logger.WithField("error", id).Warn("comic not found")
 		return nil, response.Exception(404, "comic not found")
 	}
-	result := ComicResponse(*comic)
-	return &result, nil
+	result := &dto.ComicResponse{
+		Id:            comic.Id,
+		Title:         comic.Title,
+		Synopsis:      comic.Synopsis,
+		Author:        comic.Author,
+		Artist:        comic.Artist,
+		Type:          comic.Type,
+		CoverFilename: comic.CoverFilename,
+		CoverUrl:      comic.CoverUrl,
+		CreatedAt:     comic.CreatedAt,
+		UpdatedAt:     comic.UpdatedAt,
+	}
+	return result, nil
 }
-func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]ComicResponse], error) {
+func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]dto.ComicResponse], error) {
 	newPage, err := strconv.Atoi(page)
 	if err != nil {
 		s.logger.WithError(err).Warn("parse string to int error")
@@ -160,9 +174,20 @@ func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]ComicResp
 		s.logger.WithError(err).Error("find all comic error")
 		return nil, err
 	}
-	contents := make([]ComicResponse, 0, len(comics))
+	contents := make([]dto.ComicResponse, 0, len(comics))
 	for _, comic := range comics {
-		contents = append(contents, ComicResponse(comic))
+		contents = append(contents, dto.ComicResponse{
+			Id:            comic.Id,
+			Title:         comic.Title,
+			Synopsis:      comic.Synopsis,
+			Author:        comic.Author,
+			Artist:        comic.Artist,
+			Type:          comic.Type,
+			CoverFilename: comic.CoverFilename,
+			CoverUrl:      comic.CoverUrl,
+			CreatedAt:     comic.CreatedAt,
+			UpdatedAt:     comic.UpdatedAt,
+		})
 	}
 	totalComic, err := s.comicRepository.CountTotal()
 	if err != nil {
@@ -170,7 +195,7 @@ func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]ComicResp
 		return nil, err
 	}
 	totalPage := int(math.Ceil(float64(totalComic) / float64(newSize)))
-	result := &pkg.Paging[[]ComicResponse]{
+	result := &pkg.Paging[[]dto.ComicResponse]{
 		Contents:     contents,
 		Page:         newPage,
 		Size:         newSize,
@@ -201,7 +226,7 @@ func (s *comicService) Remove(id string) error {
 	return nil
 }
 
-func (s *comicService) Search(keyword string, page string, size string) (*pkg.Paging[[]ComicResponse], error) {
+func (s *comicService) Search(keyword string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error) {
 	newPage, err := strconv.Atoi(page)
 	if err != nil {
 		s.logger.WithError(err).Warn("parse string to int error")
@@ -222,12 +247,23 @@ func (s *comicService) Search(keyword string, page string, size string) (*pkg.Pa
 		s.logger.WithError(err).Error("count comic by keyword error")
 		return nil, err
 	}
-	contents := make([]ComicResponse, 0, len(comics))
+	contents := make([]dto.ComicResponse, 0, len(comics))
 	for _, comic := range comics {
-		contents = append(contents, ComicResponse(comic))
+		contents = append(contents, dto.ComicResponse{
+			Id:            comic.Id,
+			Title:         comic.Title,
+			Synopsis:      comic.Synopsis,
+			Author:        comic.Author,
+			Artist:        comic.Artist,
+			Type:          comic.Type,
+			CoverFilename: comic.CoverFilename,
+			CoverUrl:      comic.CoverUrl,
+			CreatedAt:     comic.CreatedAt,
+			UpdatedAt:     comic.UpdatedAt,
+		})
 	}
 	totalPage := int(math.Ceil(float64(totalElement) / float64(newSize)))
-	result := &pkg.Paging[[]ComicResponse]{
+	result := &pkg.Paging[[]dto.ComicResponse]{
 		Contents:     contents,
 		Page:         newPage,
 		Size:         newSize,

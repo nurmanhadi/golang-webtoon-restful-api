@@ -1,7 +1,10 @@
-package genre
+package service
 
 import (
 	"strconv"
+	"webtoon/internal/domain/dto"
+	"webtoon/internal/domain/entity"
+	"webtoon/internal/domain/repository"
 	"webtoon/pkg/response"
 
 	"github.com/go-playground/validator/v10"
@@ -9,17 +12,17 @@ import (
 )
 
 type GenreService interface {
-	AddGenre(request *GenreAddRequest) error
-	GetAll() ([]GenreResponse, error)
+	AddGenre(request *dto.GenreAddRequest) error
+	GetAll() ([]dto.GenreResponse, error)
 	Remove(id string) error
 }
 type genreService struct {
 	logger          *logrus.Logger
 	validation      *validator.Validate
-	genreReporitory GenreRepository
+	genreReporitory repository.GenreRepository
 }
 
-func NewGenreService(logger *logrus.Logger, validation *validator.Validate, genreReporitory GenreRepository) GenreService {
+func NewGenreService(logger *logrus.Logger, validation *validator.Validate, genreReporitory repository.GenreRepository) GenreService {
 	return &genreService{
 		logger:          logger,
 		validation:      validation,
@@ -27,12 +30,12 @@ func NewGenreService(logger *logrus.Logger, validation *validator.Validate, genr
 	}
 }
 
-func (s *genreService) AddGenre(request *GenreAddRequest) error {
+func (s *genreService) AddGenre(request *dto.GenreAddRequest) error {
 	if err := s.validation.Struct(request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err
 	}
-	genre := &Genre{
+	genre := &entity.Genre{
 		Name: request.Name,
 	}
 	if err := s.genreReporitory.Save(genre); err != nil {
@@ -42,15 +45,18 @@ func (s *genreService) AddGenre(request *GenreAddRequest) error {
 	s.logger.Info("add genre success")
 	return nil
 }
-func (s *genreService) GetAll() ([]GenreResponse, error) {
+func (s *genreService) GetAll() ([]dto.GenreResponse, error) {
 	genres, err := s.genreReporitory.FindAll()
 	if err != nil {
 		s.logger.WithError(err).Error("find all genres error")
 		return nil, err
 	}
-	var result []GenreResponse
+	var result []dto.GenreResponse
 	for _, genre := range genres {
-		result = append(result, GenreResponse(genre))
+		result = append(result, dto.GenreResponse{
+			Id:   genre.Id,
+			Name: genre.Name,
+		})
 	}
 	s.logger.Info("get all genres success")
 	return result, nil

@@ -1,10 +1,12 @@
-package user
+package service
 
 import (
 	"fmt"
 	"mime/multipart"
 	"os"
 	"time"
+	"webtoon/internal/domain/dto"
+	"webtoon/internal/domain/repository"
 	"webtoon/internal/infrastructure/storage/s3"
 	"webtoon/pkg"
 	"webtoon/pkg/image"
@@ -15,18 +17,18 @@ import (
 )
 
 type UserService interface {
-	GetById(id string) (*UserResponse, error)
-	UpdateUsername(id string, request *UserUpdateUsernameRequest) error
+	GetById(id string) (*dto.UserResponse, error)
+	UpdateUsername(id string, request *dto.UserUpdateUsernameRequest) error
 	UploadAvatar(id string, avatar *multipart.FileHeader) error
 }
 type userService struct {
 	logger         *logrus.Logger
 	validation     *validator.Validate
-	userRepository UserRepository
+	userRepository repository.UserRepository
 	s3             s3.S3Storage
 }
 
-func NewUserService(logger *logrus.Logger, validation *validator.Validate, userRepository UserRepository, s3 s3.S3Storage) UserService {
+func NewUserService(logger *logrus.Logger, validation *validator.Validate, userRepository repository.UserRepository, s3 s3.S3Storage) UserService {
 	return &userService{
 		logger:         logger,
 		validation:     validation,
@@ -34,13 +36,13 @@ func NewUserService(logger *logrus.Logger, validation *validator.Validate, userR
 		s3:             s3,
 	}
 }
-func (s *userService) GetById(id string) (*UserResponse, error) {
+func (s *userService) GetById(id string) (*dto.UserResponse, error) {
 	user, err := s.userRepository.FindById(id)
 	if err != nil {
 		s.logger.WithField("error", id).Warn("user not found")
 		return nil, response.Exception(404, "user not found")
 	}
-	result := &UserResponse{
+	result := &dto.UserResponse{
 		Id:             user.Id,
 		Username:       user.Username,
 		AvatarFilename: user.AvatarFilename,
@@ -49,7 +51,7 @@ func (s *userService) GetById(id string) (*UserResponse, error) {
 	s.logger.WithField("data", user.Id).Info("get user by id success")
 	return result, nil
 }
-func (s *userService) UpdateUsername(id string, request *UserUpdateUsernameRequest) error {
+func (s *userService) UpdateUsername(id string, request *dto.UserUpdateUsernameRequest) error {
 	if err := s.validation.Struct(request); err != nil {
 		s.logger.WithError(err).Warn("validation error")
 		return err

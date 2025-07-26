@@ -1,4 +1,4 @@
-package comic
+package dto
 
 import (
 	"time"

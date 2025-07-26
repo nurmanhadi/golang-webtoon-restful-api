@@ -1,4 +1,4 @@
-package genre
+package dto
 
 type GenreAddRequest struct {
 	Name string `validate:"required,max=50" json:"name"`
