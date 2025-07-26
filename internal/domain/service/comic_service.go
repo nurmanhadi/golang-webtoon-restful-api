@@ -144,6 +144,13 @@ func (s *comicService) GetById(id string) (*dto.ComicResponse, error) {
 		s.logger.WithField("error", id).Warn("comic not found")
 		return nil, response.Exception(404, "comic not found")
 	}
+	genres := make([]dto.GenreResponse, 0, len(comic.ComicGenre))
+	for _, comicGenre := range comic.ComicGenre {
+		genres = append(genres, dto.GenreResponse{
+			Id:   comicGenre.Genre.Id,
+			Name: comicGenre.Genre.Name,
+		})
+	}
 	result := &dto.ComicResponse{
 		Id:            comic.Id,
 		Title:         comic.Title,
@@ -155,6 +162,7 @@ func (s *comicService) GetById(id string) (*dto.ComicResponse, error) {
 		CoverUrl:      comic.CoverUrl,
 		CreatedAt:     comic.CreatedAt,
 		UpdatedAt:     comic.UpdatedAt,
+		Genres:        &genres,
 	}
 	return result, nil
 }
