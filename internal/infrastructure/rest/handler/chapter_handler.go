@@ -44,7 +44,7 @@ func (h *chapterHandler) UpdateChapter(c *fiber.Ctx) error {
 func (h *chapterHandler) GetChapterByIdAndNumber(c *fiber.Ctx) error {
 	chapterId := c.Params("chapterId")
 	number := c.Query("number", "1")
-	result, err := h.chapterService.GetByIdAndComicId(chapterId, number)
+	result, err := h.chapterService.GetByIdAndNumber(chapterId, number)
 	if err != nil {
 		return err
 	}

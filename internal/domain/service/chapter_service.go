@@ -1,6 +1,7 @@
 package service
 
 import (
+	"sort"
 	"strconv"
 	"webtoon/internal/domain/dto"
 	"webtoon/internal/domain/entity"
@@ -14,7 +15,7 @@ import (
 type ChapterService interface {
 	AddChapter(request *dto.ChapterAddRequest) error
 	UpdateChapter(id string, request dto.ChapterUpdateRequest) error
-	GetByIdAndComicId(id string, number string) (*dto.ChapterResponse, error)
+	GetByIdAndNumber(id string, number string) (*dto.ChapterResponse, error)
 }
 type chapterService struct {
 	logger            *logrus.Logger
@@ -85,7 +86,7 @@ func (s *chapterService) UpdateChapter(id string, request dto.ChapterUpdateReque
 	s.logger.WithField("data", id).Info("update chapter success")
 	return nil
 }
-func (s *chapterService) GetByIdAndComicId(id string, number string) (*dto.ChapterResponse, error) {
+func (s *chapterService) GetByIdAndNumber(id string, number string) (*dto.ChapterResponse, error) {
 	newId, err := strconv.Atoi(id)
 	if err != nil {
 		s.logger.WithError(err).Warn("parse string to int error")
@@ -113,6 +114,19 @@ func (s *chapterService) GetByIdAndComicId(id string, number string) (*dto.Chapt
 		CreatedAt:     chapter.Comic.CreatedAt,
 		UpdatedAt:     chapter.Comic.UpdatedAt,
 	}
+
+	contents := make([]dto.ContentResponse, 0, len(chapter.Contents))
+	for _, content := range chapter.Contents {
+		contents = append(contents, dto.ContentResponse{
+			Id:        content.Id,
+			ChapterId: content.ChapterId,
+			Filename:  content.Filename,
+			Url:       content.Filename,
+		})
+	}
+	sort.Slice(contents, func(i, j int) bool {
+		return contents[i].Filename < contents[j].Filename
+	})
 	result := &dto.ChapterResponse{
 		Id:        chapter.Id,
 		ComicId:   chapter.ComicId,
@@ -120,6 +134,7 @@ func (s *chapterService) GetByIdAndComicId(id string, number string) (*dto.Chapt
 		Publish:   chapter.Publish,
 		CreatedAt: chapter.CreatedAt,
 		Comic:     comic,
+		Contents:  &contents,
 	}
 	s.logger.WithField("data", id).Info("get by id and number chapter success")
 	return result, nil

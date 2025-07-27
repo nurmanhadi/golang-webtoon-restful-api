@@ -11,10 +11,11 @@ type ChapterUpdateRequest struct {
 	Publish *bool `validate:"omitempty" json:"publish"`
 }
 type ChapterResponse struct {
-	Id        int64          `json:"id"`
-	ComicId   string         `json:"comic_id"`
-	Number    int            `json:"number"`
-	Publish   bool           `json:"publish"`
-	CreatedAt time.Time      `json:"created_at"`
-	Comic     *ComicResponse `json:"comic"`
+	Id        int64              `json:"id"`
+	ComicId   string             `json:"comic_id"`
+	Number    int                `json:"number"`
+	Publish   bool               `json:"publish"`
+	CreatedAt time.Time          `json:"created_at"`
+	Comic     *ComicResponse     `json:"comic"`
+	Contents  *[]ContentResponse `json:"contents"`
 }
