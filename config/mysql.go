@@ -17,7 +17,6 @@ func NewMysql() *gorm.DB {
 	if err != nil {
 		log.Fatalf("mysql error: %s", err.Error())
 	}
-	log.Println("connected to database")
 
 	pool, err := db.DB()
 	if err != nil {
@@ -43,10 +42,5 @@ func NewMysql() *gorm.DB {
 	pool.SetMaxOpenConns(int(openConns))
 	pool.SetConnMaxIdleTime(time.Duration(idleTime) * time.Minute)
 	pool.SetConnMaxLifetime(time.Duration(lifetime) * time.Minute)
-
-	log.Printf("db pooling max idle conns| %d", idleConns)
-	log.Printf("db pooling max open conns| %d", openConns)
-	log.Printf("db pooling max idle time | %d minute", idleTime)
-	log.Printf("db pooling max lifetime  | %d minute", lifetime)
 	return db
 }

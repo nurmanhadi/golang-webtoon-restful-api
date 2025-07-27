@@ -26,7 +26,6 @@ func NewMinio() *minio.Client {
 	if err != nil {
 		log.Fatalf("minio error: %s", err.Error())
 	}
-	log.Println("minio activate")
 	if err := createBuckets(minioClient); err != nil {
 		log.Fatalf("minio bucket error: %s", err.Error())
 	}
@@ -40,9 +39,7 @@ func createBuckets(minioClient *minio.Client) error {
 	if err != nil {
 		return err
 	}
-	if found {
-		log.Printf("buckets %s already exists", bucket)
-	} else {
+	if !found {
 		if err := minioClient.MakeBucket(ctx, bucket, minio.MakeBucketOptions{ObjectLocking: true}); err != nil {
 			return err
 		}
@@ -52,6 +49,5 @@ func createBuckets(minioClient *minio.Client) error {
 	if err := minioClient.SetBucketPolicy(ctx, bucket, policy); err != nil {
 		return err
 	}
-	log.Printf("minio buckets: %s", bucket)
 	return nil
 }
