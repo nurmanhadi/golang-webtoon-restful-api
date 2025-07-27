@@ -1,0 +1,7 @@
+CREATE TABLE contents(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    chapter_id BIGINT NOT NULL,
+    filename VARCHAR(100) NOT NULL,
+    url VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_contents_chapters FOREIGN KEY(chapter_id) REFERENCES chapters(id) ON DELETE CASCADE ON UPDATE CASCADE
+);

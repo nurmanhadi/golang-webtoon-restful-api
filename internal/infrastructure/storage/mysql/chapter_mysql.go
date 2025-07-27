@@ -33,3 +33,11 @@ func (r *chapterStorage) FindByIdAndNumber(id int, number int) (*entity.Chapter,
 	}
 	return chapter, nil
 }
+func (r *chapterStorage) Count(id int) (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Chapter{}).Where("id = ?", id).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

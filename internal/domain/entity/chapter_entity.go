@@ -9,4 +9,5 @@ type Chapter struct {
 	Publish   bool   `gorm:"type:bool;not null"`
 	CreatedAt time.Time
 	Comic     *Comic
+	Contents  []Content
 }

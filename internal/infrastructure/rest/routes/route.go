@@ -16,6 +16,7 @@ type Init struct {
 	GenreHandler      handler.GenreHandler
 	ComicGenreHandler handler.ComicGenreHandler
 	ChapterHandler    handler.ChapterHandler
+	ContentHandler    handler.ContentHandler
 }
 
 func (i *Init) Setup(app *fiber.App) {
@@ -53,6 +54,10 @@ func (i *Init) Setup(app *fiber.App) {
 	chapter := comic.Group("/:comicId/chapters")
 	chapter.Post("/", i.ChapterHandler.AddChapter)
 	chapter.Put("/:chapterId", i.ChapterHandler.UpdateChapter)
+
+	// contents
+	content := chapter.Group("/:chapterId/contents")
+	content.Post("/", i.ContentHandler.AddBulkContent)
 
 	// genres
 	genre := api.Group("/genres", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN)}))

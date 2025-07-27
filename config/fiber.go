@@ -18,6 +18,7 @@ func NewFiber() *fiber.App {
 		JSONEncoder:  json.Marshal,
 		JSONDecoder:  json.Unmarshal,
 		ErrorHandler: errorHandler,
+		BodyLimit:    30 * 1024 * 1024, // 30MB
 	})
 }
 func errorHandler(c *fiber.Ctx, err error) error {
