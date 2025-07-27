@@ -58,6 +58,7 @@ func (i *Init) Setup(app *fiber.App) {
 	// contents
 	content := chapter.Group("/:chapterId/contents")
 	content.Post("/", i.ContentHandler.AddBulkContent)
+	content.Delete("/:contentId", i.ContentHandler.RemoveContent)
 
 	// genres
 	genre := api.Group("/genres", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN)}))

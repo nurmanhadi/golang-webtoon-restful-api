@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"log"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -20,6 +19,7 @@ import (
 
 type ContentService interface {
 	AddBulkContent(chapterId string, contents []*multipart.FileHeader) error
+	Remove(id string) error
 }
 type contentService struct {
 	logger            *logrus.Logger
@@ -48,7 +48,7 @@ func (s *contentService) AddBulkContent(chapterId string, contents []*multipart.
 	newChapterId, err := strconv.Atoi(chapterId)
 	if err != nil {
 		s.logger.WithError(err).Warn("parse string to int error")
-		return response.Exception(400, "id most be number")
+		return response.Exception(400, "chapter id most be number")
 	}
 	countChapter, err := s.chapterRepository.Count(newChapterId)
 	if err != nil {
@@ -81,7 +81,6 @@ func (s *contentService) AddBulkContent(chapterId string, contents []*multipart.
 			s.logger.WithError(err).Error("s3 upload file error")
 			return err
 		}
-		log.Println("uploaded")
 		url := pkg.GenerateUrl(filename)
 		contentEnt := &entity.Content{
 			ChapterId: int64(newChapterId),
@@ -94,5 +93,29 @@ func (s *contentService) AddBulkContent(chapterId string, contents []*multipart.
 		}
 	}
 	s.logger.Info("add bulk content success")
+	return nil
+}
+func (s *contentService) Remove(id string) error {
+	newId, err := strconv.Atoi(id)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return response.Exception(400, "id most be number")
+	}
+	content, err := s.contentRepository.FindById(newId)
+	if err != nil {
+		s.logger.WithField("error", id).Warn("content not found")
+		return response.Exception(404, "content not found")
+	}
+	go func(filename string) {
+		if err := s.s3.RemoveFile(filename); err != nil {
+			s.logger.WithError(err).Error("s3 remove file error")
+			return
+		}
+	}(content.Filename)
+	if err := s.contentRepository.Delete(newId); err != nil {
+		s.logger.WithError(err).Error("content remove error")
+		return err
+	}
+	s.logger.WithField("data", id).Info("content remove success")
 	return nil
 }

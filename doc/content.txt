@@ -1,4 +1,3 @@
 feature
-1. add bulk content
-2. update content
-3. remove content
+1. add bulk content | done
+3. remove content   | done

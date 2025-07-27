@@ -9,6 +9,7 @@ import (
 
 type ContentHandler interface {
 	AddBulkContent(c *fiber.Ctx) error
+	RemoveContent(c *fiber.Ctx) error
 }
 type contentHandler struct {
 	contentService service.ContentService
@@ -35,4 +36,13 @@ func (h *contentHandler) AddBulkContent(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 201, "OK")
+}
+func (h *contentHandler) RemoveContent(c *fiber.Ctx) error {
+	c.Params("comicId")
+	c.Params("chapterId")
+	contentId := c.Params("contentId")
+	if err := h.contentService.Remove(contentId); err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
 }
