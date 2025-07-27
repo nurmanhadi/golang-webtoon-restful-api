@@ -5,6 +5,7 @@ import (
 	"math"
 	"mime/multipart"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 	"webtoon/internal/domain/dto"
@@ -151,6 +152,19 @@ func (s *comicService) GetById(id string) (*dto.ComicResponse, error) {
 			Name: comicGenre.Genre.Name,
 		})
 	}
+	chapters := make([]dto.ChapterResponse, 0, len(comic.Chapters))
+	for _, chapter := range comic.Chapters {
+		chapters = append(chapters, dto.ChapterResponse{
+			Id:        chapter.Id,
+			ComicId:   chapter.ComicId,
+			Number:    chapter.Number,
+			Publish:   chapter.Publish,
+			CreatedAt: chapter.CreatedAt,
+		})
+	}
+	sort.Slice(chapters, func(i, j int) bool {
+		return chapters[i].Number > chapters[j].Number
+	})
 	result := &dto.ComicResponse{
 		Id:            comic.Id,
 		Title:         comic.Title,
@@ -163,6 +177,7 @@ func (s *comicService) GetById(id string) (*dto.ComicResponse, error) {
 		CreatedAt:     comic.CreatedAt,
 		UpdatedAt:     comic.UpdatedAt,
 		Genres:        &genres,
+		Chapters:      &chapters,
 	}
 	return result, nil
 }

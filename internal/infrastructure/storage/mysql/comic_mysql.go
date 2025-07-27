@@ -19,7 +19,7 @@ func (r *comicStorage) Save(comic *entity.Comic) error {
 }
 func (r *comicStorage) FindById(id string) (*entity.Comic, error) {
 	var comic *entity.Comic
-	err := r.db.Where("id = ?", id).Preload("ComicGenre.Genre").First(&comic).Error
+	err := r.db.Where("id = ?", id).Preload("ComicGenre.Genre").Preload("Chapters").First(&comic).Error
 	if err != nil {
 		return nil, err
 	}
