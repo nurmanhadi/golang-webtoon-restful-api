@@ -15,6 +15,7 @@ type Init struct {
 	ComicHandler      handler.ComicHandler
 	GenreHandler      handler.GenreHandler
 	ComicGenreHandler handler.ComicGenreHandler
+	ChapterHandler    handler.ChapterHandler
 }
 
 func (i *Init) Setup(app *fiber.App) {
@@ -23,6 +24,7 @@ func (i *Init) Setup(app *fiber.App) {
 	// public
 	api.Get("/comics", i.ComicHandler.GetAll)
 	api.Get("/comics/:comicId", i.ComicHandler.GetById)
+	api.Get("/comics/:comicId/chapters/:chapterId", i.ChapterHandler.GetChapterByIdAndNumber)
 
 	api.Get("/search", i.ComicHandler.Search)
 
@@ -46,6 +48,11 @@ func (i *Init) Setup(app *fiber.App) {
 	comic.Post("/", i.ComicHandler.AddComic)
 	comic.Put("/:comicId", i.ComicHandler.UpdateComic)
 	comic.Delete("/:comicId", i.ComicHandler.Remove)
+
+	// chapters
+	chapter := comic.Group("/:comicId/chapters")
+	chapter.Post("/", i.ChapterHandler.AddChapter)
+	chapter.Put("/:chapterId", i.ChapterHandler.UpdateChapter)
 
 	// genres
 	genre := api.Group("/genres", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN)}))

@@ -17,4 +17,5 @@ type Comic struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	ComicGenre    []ComicGenre
+	Chapters      []Chapter
 }

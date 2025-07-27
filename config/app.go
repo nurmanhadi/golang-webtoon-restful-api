@@ -34,6 +34,7 @@ func Initialize(conf *Configuration) {
 	comicStore := mysql.NewComicStorage(conf.DB)
 	genreStore := mysql.NewGenreStorage(conf.DB)
 	comicGenreStore := mysql.NewComicGenreStorage(conf.DB)
+	chapterStore := mysql.NewChapterStorage(conf.DB)
 
 	// service
 	authServ := service.NewAuthService(conf.Logger, conf.Validation, authStore)
@@ -41,6 +42,7 @@ func Initialize(conf *Configuration) {
 	comicServ := service.NewComicService(conf.Logger, conf.Validation, comicStore, s3Store)
 	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreStore, comicGenreStore)
 	comicGenreServ := service.NewComicGenreService(conf.Logger, conf.Validation, comicGenreStore, comicStore, genreStore)
+	chapterServ := service.NewChapterService(conf.Logger, conf.Validation, chapterStore, comicStore)
 
 	// handler
 	authHand := handler.NewAuthHandler(authServ)
@@ -48,6 +50,7 @@ func Initialize(conf *Configuration) {
 	comicHand := handler.NewComicHandler(comicServ)
 	genreHand := handler.NewGenreHandler(genreServ)
 	comicGenreHand := handler.NewComicGenreHandler(comicGenreServ)
+	chapterHand := handler.NewChapterHandler(chapterServ)
 
 	// middleware
 	middleware := &middleware.Inject{
@@ -61,6 +64,7 @@ func Initialize(conf *Configuration) {
 		ComicHandler:      comicHand,
 		GenreHandler:      genreHand,
 		ComicGenreHandler: comicGenreHand,
+		ChapterHandler:    chapterHand,
 	}
 	route.Setup(conf.App)
 }
