@@ -6,6 +6,7 @@ import (
 	"webtoon/internal/domain/dto"
 	"webtoon/internal/domain/entity"
 	"webtoon/internal/domain/repository"
+	"webtoon/internal/infrastructure/storage/s3"
 	"webtoon/pkg/response"
 
 	"github.com/go-playground/validator/v10"
@@ -16,20 +17,23 @@ type ChapterService interface {
 	AddChapter(request *dto.ChapterAddRequest) error
 	UpdateChapter(id string, request dto.ChapterUpdateRequest) error
 	GetByIdAndNumber(id string, number string) (*dto.ChapterResponse, error)
+	Remove(id string) error
 }
 type chapterService struct {
 	logger            *logrus.Logger
 	validation        *validator.Validate
 	chapterRepository repository.ChapterRepository
 	comicRepository   repository.ComicRepository
+	s3                s3.S3Storage
 }
 
-func NewChapterService(logger *logrus.Logger, validation *validator.Validate, chapterRepository repository.ChapterRepository, comicRepository repository.ComicRepository) ChapterService {
+func NewChapterService(logger *logrus.Logger, validation *validator.Validate, chapterRepository repository.ChapterRepository, comicRepository repository.ComicRepository, s3 s3.S3Storage) ChapterService {
 	return &chapterService{
 		logger:            logger,
 		validation:        validation,
 		chapterRepository: chapterRepository,
 		comicRepository:   comicRepository,
+		s3:                s3,
 	}
 }
 func (s *chapterService) AddChapter(request *dto.ChapterAddRequest) error {
@@ -138,4 +142,30 @@ func (s *chapterService) GetByIdAndNumber(id string, number string) (*dto.Chapte
 	}
 	s.logger.WithField("data", id).Info("get by id and number chapter success")
 	return result, nil
+}
+func (s *chapterService) Remove(id string) error {
+	newId, err := strconv.Atoi(id)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return response.Exception(400, "id most be number")
+	}
+	chapter, err := s.chapterRepository.FindById(newId)
+	if err != nil {
+		s.logger.WithField("error", id).Warn("chapter not found")
+		return response.Exception(404, "chapter not found")
+	}
+	if len(chapter.Contents) != 0 {
+		for _, content := range chapter.Contents {
+			if err := s.s3.RemoveFile(content.Filename); err != nil {
+				s.logger.WithError(err).Error("s3 remove file error")
+				return err
+			}
+		}
+	}
+	if err := s.chapterRepository.Delete(newId); err != nil {
+		s.logger.WithError(err).Error("chapter remove error")
+		return err
+	}
+	s.logger.WithField("data", id).Info("chapter remove success")
+	return nil
 }

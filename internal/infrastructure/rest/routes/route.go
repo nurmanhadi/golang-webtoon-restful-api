@@ -54,6 +54,7 @@ func (i *Init) Setup(app *fiber.App) {
 	chapter := comic.Group("/:comicId/chapters")
 	chapter.Post("/", i.ChapterHandler.AddChapter)
 	chapter.Put("/:chapterId", i.ChapterHandler.UpdateChapter)
+	chapter.Delete("/:chapterId", i.ChapterHandler.RemoveChapter)
 
 	// contents
 	content := chapter.Group("/:chapterId/contents")

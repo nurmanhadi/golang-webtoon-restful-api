@@ -19,7 +19,6 @@ func NewContentHandler(contentService service.ContentService) ContentHandler {
 	return &contentHandler{contentService: contentService}
 }
 func (h *contentHandler) AddBulkContent(c *fiber.Ctx) error {
-	c.Params("comicId")
 	chapterId := c.Params("chapterId")
 	form, err := c.MultipartForm()
 	if err != nil {
@@ -38,8 +37,6 @@ func (h *contentHandler) AddBulkContent(c *fiber.Ctx) error {
 	return response.Success(c, 201, "OK")
 }
 func (h *contentHandler) RemoveContent(c *fiber.Ctx) error {
-	c.Params("comicId")
-	c.Params("chapterId")
 	contentId := c.Params("contentId")
 	if err := h.contentService.Remove(contentId); err != nil {
 		return err

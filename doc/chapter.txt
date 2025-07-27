@@ -2,3 +2,4 @@ skenario
 1. add chapter          | done
 2. update chapter       | done
 4. get by id and number | done
+5. delete by id         |

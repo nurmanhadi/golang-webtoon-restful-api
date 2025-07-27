@@ -12,6 +12,7 @@ type ChapterHandler interface {
 	AddChapter(c *fiber.Ctx) error
 	UpdateChapter(c *fiber.Ctx) error
 	GetChapterByIdAndNumber(c *fiber.Ctx) error
+	RemoveChapter(c *fiber.Ctx) error
 }
 type chapterHandler struct {
 	chapterService service.ChapterService
@@ -49,4 +50,11 @@ func (h *chapterHandler) GetChapterByIdAndNumber(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, result)
+}
+func (h *chapterHandler) RemoveChapter(c *fiber.Ctx) error {
+	chapterId := c.Params("chapterId")
+	if err := h.chapterService.Remove(chapterId); err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
 }

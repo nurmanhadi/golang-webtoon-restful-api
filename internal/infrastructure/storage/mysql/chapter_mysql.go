@@ -19,7 +19,7 @@ func (r *chapterStorage) Save(chapter *entity.Chapter) error {
 }
 func (r *chapterStorage) FindById(id int) (*entity.Chapter, error) {
 	var chapter *entity.Chapter
-	err := r.db.Where("id = ?", id).First(&chapter).Error
+	err := r.db.Where("id = ?", id).Preload("Contents").First(&chapter).Error
 	if err != nil {
 		return nil, err
 	}
@@ -40,4 +40,7 @@ func (r *chapterStorage) Count(id int) (int64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+func (r *chapterStorage) Delete(id int) error {
+	return r.db.Where("id = ?", id).Delete(&entity.Chapter{}).Error
 }
