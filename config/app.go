@@ -58,7 +58,9 @@ func Initialize(conf *Configuration) {
 	// middleware
 	middleware := &middleware.Inject{
 		Logger: conf.Logger,
+		App:    conf.App,
 	}
+	middleware.Setup()
 
 	route := &routes.Init{
 		Middleware:        middleware,
