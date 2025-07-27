@@ -1,148 +1,235 @@
-# 🚀 GoFiber Starterkit with MySQL
-
-A ready-to-use starterkit for building REST APIs using [GoFiber](https://gofiber.io) and MySQL.  
-It provides a clean architecture structure, validation, logging, and database connection setup to help you focus on your business logic.
-
----
-
-## 📁 Project Structure
-
-```
-├── cmd
-│   └── main.go                          # Application entry point
-├── config                               # App configurations
-│   ├── app.go
-│   ├── environment.go
-│   ├── fiber.go
-│   ├── logrus.go
-│   ├── mysql.go
-│   └── validator.go
-├── Dockerfile                           # Docker setup
-├── go.mod
-├── go.sum
-├── internal                             # Clean architecture layout
-│   ├── domain
-│   │   └── example
-│   │       ├── dto
-│   │       ├── entity
-│   │       ├── handler
-│   │       │   └── example_handler.go
-│   │       ├── repository
-│   │       │   └── resource
-│   │       └── service
-│   └── infrastructure
-│       └── rest
-│           ├── middleware
-│           └── routes
-│               └── route.go
-├── pkg
-│   └── response_status_exception.go     # Utility helpers
-└── test                                 # Unit tests
-```
+# 📝 Summary
+Welltoon is a webtoon management RESTful API built using Golang and Fiber framework.
+It supports authentication, user management, comic and chapter CRUD, genre tagging, and file uploads via S3-compatible services like MinIO.
 
 ---
 
-## ✅ Features
+## 🌏 Flow
 
-- ⚡ [Fiber](https://gofiber.io) framework (fast & lightweight)
-- 🐬 ORM [Gorm](https://gorm.io) and MySQL with connection pooling
-- 🔍 Input validation with [validator](https://pkg.go.dev/github.com/go-playground/validator/v10)
-- 📦 Modular clean architecture
-- 🐳 Docker ready
-- 📄 Auto JSON response [formatter](https://pkg.go.dev/github.com/goccy/go-json)
-- 🧪 Ready for unit testing
+![flow](doc/flow.drawio.png)
 
 ---
 
-## ⚙️ Installation & Setup
+## 📦 Requirements
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/nurmanhadi/gofiber-starter-kit-mysql.git
-cd gofiber-starter-kit-mysql
-```
+- [Go](https://go.dev/) - Programming language used to build the backend
+- [FIBER](https://gofiber.io/) - Framework to build web services
+- [GORM](https://gorm.io/) - ORM library for Golang
+- [MySQL](https://www.mysql.com/) - Relational database
+- [MinIO (S3 compatible)](https://min.io/) - Object storage for media files
+- [Go Validator](https://github.com/go-playground/validator) - Struct validation library
+- [Docker](https://www.docker.com/) - Container platform to run the app and services
 
 ---
 
-### 2. Create `.env` File
+## ⚙️ Environment Variables (.env)
 
-Create a `.env` file in the root directory:
+```env
+APP_NAME="gofiber starterkit mysql"
 
-```dotenv
-APP_NAME="Your App Name"
-
-DB_MYSQL_URL="username:password@tcp(localhost:3306)/yourdb?charset=utf8mb4&parseTime=True&loc=Local"
+# Database
+DB_MYSQL_URL="user:password@tcp(localhost:3306)/yourdb?charset=utf8mb4&parseTime=True&loc=Local"
 DB_POOL_MAX_IDLE_CONNS=5
 DB_POOL_MAX_OPEN_CONNS=15
-DB_POOL_MAX_IDLE_TIME=10    # in minutes
-DB_POOL_MAX_LIFETIME=30     # in minutes
+DB_POOL_MAX_IDLE_TIME=10 # minute
+DB_POOL_MAX_LIFETIME=30 # minute
+
+# JWT
+JWT_SECRET_KEY="your-secret"
+
+# Origin URL (Frontend)
+ORIGIN_URL="your-origin-url"
+
+# MinIO (S3-compatible)
+MINIO_ENDPOINT=localhost:9000
+MINIO_ACCESS_KEY_ID=example
+MINIO_SECRET_ACCESS_KEY=example
+MINIO_SSL=false # boolean
+MINIO_BUCKETS=example
 ```
 
 ---
 
-### 3. Remove Git History & Reinitialize
+## 📘 API Documentation
 
-```bash
-rm -rf .git
-git init
+This document provides an overview of the available RESTful API endpoints for the **Welltoon** web application.
+
+> 🧪 Base URL: `http://localhost:3000`
+
+---
+
+### 🔐 Authentication
+
+#### ➕ Register
+**POST** `/api/auth/register`
+
+**Request Body:**
+```json
+{
+  "username": "user",
+  "password": "user"
+}
 ```
 
 ---
 
-### 4. Rename Module in `go.mod`
+#### 🔓 Login
+**POST** `/api/auth/login`
 
-Edit the `go.mod` file:
-
-**Before:**
-```go
-module gofiber-starterkit-mysql
-```
-
-**After:**
-```go
-module your-module
-```
-
-Then run:
-
-```bash
-go mod tidy
-```
-
-finnaly you can chnage `import path`
-
----
-
-## 🐳 Run with Docker
-
-```bash
-docker build -t gofiber-app .
-docker run -p 3000:3000 --env-file .env gofiber-app
+**Request Body:**
+```json
+{
+  "username": "user",
+  "password": "user"
+}
 ```
 
 ---
 
-## 📮 Example Endpoint
+### 👤 User
 
-`GET /`
+#### 🔍 Get User by ID
+**GET** `/api/users/:id`  
+> Requires Authorization header
+
+#### ✏️ Update Username
+**PUT** `/api/users/:id`  
+> Requires Authorization header  
+**Body:**
+```json
+{
+  "username": "new_username"
+}
+```
+
+#### 🖼️ Upload Avatar
+**PUT** `/api/users/:id/upload`  
+> Requires Authorization header  
+> FormData:
+- `avatar`: file
 
 ---
 
-## 🤝 Contributing
+### 📚 Comic
 
-Pull requests are welcome!  
-Feel free to fork and customize this starterkit for your own projects.
+#### ➕ Add Comic
+**POST** `/api/comics`  
+> Requires Authorization header  
+> FormData:
+- `cover`: file
+- `title`, `synopsis`, `author`, `artist`, `type`: text
+
+#### ✏️ Update Comic
+**PUT** `/api/comics/:id`  
+> Requires Authorization header  
+> FormData (optional fields, can be disabled): cover, title, synopsis, author, artist, type
+
+#### 🔍 Get Comic by ID
+**GET** `/api/comics/:id`
+
+#### 📖 Get All Comics
+**GET** `/api/comics?page=1&size=20`
+
+#### 🔍 Search Comics
+**GET** `/api/search?keyword=...&page=1&size=20`
+
+#### 🗑️ Delete Comic
+**DELETE** `/api/comics/:id`  
+> Requires Authorization header
 
 ---
 
-## 📝 License
+### 🏷️ Genre
 
-MIT License. Use, modify, and distribute as needed.
+#### ➕ Add Genre
+**POST** `/api/genres`  
+> Requires Authorization header  
+**Body:**
+```json
+{
+  "name": "Horror"
+}
+```
+
+#### 📖 Get All Genres
+**GET** `/api/genres`
+
+#### 🔍 Get Genre by ID
+**GET** `/api/genres/:id?page=1&size=20`
+
+#### 🗑️ Delete Genre
+**DELETE** `/api/genres/:id`  
+> Requires Authorization header
 
 ---
 
-## 👤 Author
+### 📌 Comic-Genre Mapping
 
-Muhammad Nurman Hadi  
-GitHub: [@nurmanhadi](https://github.com/nurmanhadi)
+#### ➕ Add Comic to Genre
+**POST** `/api/comic-genre`  
+> Requires Authorization header  
+**Body:**
+```json
+{
+  "comic_id": "...",
+  "genre_id": 1
+}
+```
+
+#### 🗑️ Remove Comic from Genre
+**DELETE** `/api/comic-genre/comics/:comicId/genres/:genreId`  
+> Requires Authorization header
+
+---
+
+### 📖 Chapter
+
+#### ➕ Add Chapter
+**POST** `/api/comics/:comicId/chapters`  
+> Requires Authorization header  
+**Body:**
+```json
+{
+  "comic_id": "...",
+  "number": 14
+}
+```
+
+#### ✏️ Update Chapter
+**PUT** `/api/comics/:comicId/chapters/:chapterId`  
+> Requires Authorization header  
+**Body:**
+```json
+{
+  "publish": false
+}
+```
+
+#### 🗑️ Delete Chapter
+**DELETE** `/api/comics/:comicId/chapters/:chapterId`  
+> Requires Authorization header
+
+#### 🔍 Get Chapter by ID and Number
+**GET** `/api/comics/:comicId/chapters/:chapterId?number=3`
+
+---
+
+### 📄 Content
+
+#### 📥 Add Bulk Content
+**POST** `/api/comics/:comicId/chapters/:chapterId/contents`  
+> Requires Authorization header  
+> FormData:
+- `contents`: multiple image files
+
+#### 🗑️ Delete Content
+**DELETE** `/api/comics/:comicId/chapters/:chapterId/contents/:contentId`  
+> Requires Authorization header
+
+---
+
+### 📌 Notes
+- Use `Authorization: Bearer <token>` header where required.
+- Make sure to replace `:id`, `:comicId`, `:chapterId`, `:contentId`, etc. with actual UUIDs or IDs.
+
+---
