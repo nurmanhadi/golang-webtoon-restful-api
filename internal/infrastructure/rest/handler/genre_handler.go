@@ -47,12 +47,12 @@ func (h *genreHandler) GetById(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return response.Success(c, 201, result)
+	return response.Success(c, 200, result)
 }
 func (h *genreHandler) Remove(c *fiber.Ctx) error {
 	genreId := c.Params("genreId")
 	if err := h.genreService.Remove(genreId); err != nil {
 		return err
 	}
-	return response.Success(c, 201, "OK")
+	return response.Success(c, 200, "OK")
 }
