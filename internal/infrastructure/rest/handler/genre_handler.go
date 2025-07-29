@@ -37,7 +37,7 @@ func (h *genreHandler) GetAll(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return response.Success(c, 201, result)
+	return response.Success(c, 200, result)
 }
 func (h *genreHandler) GetById(c *fiber.Ctx) error {
 	genreId := c.Params("genreId")
