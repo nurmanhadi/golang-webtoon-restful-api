@@ -199,6 +199,28 @@ func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]dto.Comic
 	}
 	contents := make([]dto.ComicResponse, 0, len(comics))
 	for _, comic := range comics {
+		chapters := make([]dto.ChapterResponse, 0, len(comic.Chapters))
+		if len(comic.Chapters) != 0 {
+			for _, chapter := range comic.Chapters {
+				if chapter.Publish {
+					chapters = append(chapters, dto.ChapterResponse{
+						Id:        chapter.Id,
+						ComicId:   chapter.ComicId,
+						Number:    chapter.Number,
+						Publish:   chapter.Publish,
+						CreatedAt: chapter.CreatedAt,
+					})
+				}
+			}
+			sort.Slice(chapters, func(i, j int) bool {
+				return chapters[i].Number > chapters[j].Number // ASC
+			})
+			if len(chapters) == 1 {
+				chapters = chapters[:1]
+			} else {
+				chapters = chapters[:2]
+			}
+		}
 		contents = append(contents, dto.ComicResponse{
 			Id:            comic.Id,
 			Title:         comic.Title,
@@ -210,6 +232,7 @@ func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]dto.Comic
 			CoverUrl:      comic.CoverUrl,
 			CreatedAt:     comic.CreatedAt,
 			UpdatedAt:     comic.UpdatedAt,
+			Chapters:      &chapters,
 		})
 	}
 	totalComic, err := s.comicRepository.CountTotal()

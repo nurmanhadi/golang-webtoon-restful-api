@@ -27,7 +27,12 @@ func (r *comicStorage) FindById(id string) (*entity.Comic, error) {
 }
 func (r *comicStorage) FindAll(page int, size int) ([]entity.Comic, error) {
 	var comics []entity.Comic
-	err := r.db.Offset((page - 1) * size).Limit(size).Find(&comics).Error
+	err := r.db.
+		Offset((page - 1) * size).
+		Limit(size).
+		Order("updated_at DESC").
+		Preload("Chapters").
+		Find(&comics).Error
 	if err != nil {
 		return nil, err
 	}
