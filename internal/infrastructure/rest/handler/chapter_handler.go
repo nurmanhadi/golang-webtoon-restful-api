@@ -11,7 +11,7 @@ import (
 type ChapterHandler interface {
 	AddChapter(c *fiber.Ctx) error
 	UpdateChapter(c *fiber.Ctx) error
-	GetChapterByIdAndNumber(c *fiber.Ctx) error
+	GetChapterByComicIdAndNumber(c *fiber.Ctx) error
 	RemoveChapter(c *fiber.Ctx) error
 }
 type chapterHandler struct {
@@ -42,10 +42,10 @@ func (h *chapterHandler) UpdateChapter(c *fiber.Ctx) error {
 	}
 	return response.Success(c, 200, "OK")
 }
-func (h *chapterHandler) GetChapterByIdAndNumber(c *fiber.Ctx) error {
-	chapterId := c.Params("chapterId")
-	number := c.Query("number", "1")
-	result, err := h.chapterService.GetByIdAndNumber(chapterId, number)
+func (h *chapterHandler) GetChapterByComicIdAndNumber(c *fiber.Ctx) error {
+	comicId := c.Params("comicId")
+	number := c.Params("number", "1")
+	result, err := h.chapterService.GetByComicIdAndNumber(comicId, number)
 	if err != nil {
 		return err
 	}

@@ -209,8 +209,8 @@ This document provides an overview of the available RESTful API endpoints for th
 **DELETE** `/api/comics/:comicId/chapters/:chapterId`  
 > Requires Authorization header
 
-#### 🔍 Get Chapter by ID and Number
-**GET** `/api/comics/:comicId/chapters/:chapterId?number=3`
+#### 🔍 Get Chapter by Comic ID and Number
+**GET** `/api/comics/:comicId/chapters/:number`
 
 ---
 

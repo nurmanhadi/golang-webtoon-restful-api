@@ -25,9 +25,9 @@ func (r *chapterStorage) FindById(id int) (*entity.Chapter, error) {
 	}
 	return chapter, nil
 }
-func (r *chapterStorage) FindByIdAndNumber(id int, number int) (*entity.Chapter, error) {
+func (r *chapterStorage) FindByComicIdAndNumber(comicId string, number int) (*entity.Chapter, error) {
 	var chapter *entity.Chapter
-	err := r.db.Where("id = ? AND number = ?", id, number).Preload("Comic").Preload("Contents").First(&chapter).Error
+	err := r.db.Where("comic_id = ? AND number = ?", comicId, number).Preload("Comic.Chapters").Preload("Contents").First(&chapter).Error
 	if err != nil {
 		return nil, err
 	}
