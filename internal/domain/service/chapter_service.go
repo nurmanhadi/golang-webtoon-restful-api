@@ -149,7 +149,7 @@ func (s *chapterService) GetByComicIdAndNumber(comicId string, number string) (*
 				Id:        content.Id,
 				ChapterId: content.ChapterId,
 				Filename:  content.Filename,
-				Url:       content.Filename,
+				Url:       content.Url,
 			})
 		}
 		sort.Slice(contents, func(i, j int) bool {

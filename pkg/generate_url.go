@@ -8,5 +8,8 @@ import (
 func GenerateUrl(filename string) string {
 	minioEndpoint := os.Getenv("MINIO_ENDPOINT")
 	bucket := os.Getenv("MINIO_BUCKETS")
-	return fmt.Sprintf("%s/%s/%s", minioEndpoint, bucket, filename)
+	if minioEndpoint != "localhost:9000" {
+		return fmt.Sprintf("https://%s/%s/%s", minioEndpoint, bucket, filename)
+	}
+	return fmt.Sprintf("http://%s/%s/%s", minioEndpoint, bucket, filename)
 }
