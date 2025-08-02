@@ -3,6 +3,7 @@ package service
 import (
 	"sort"
 	"strconv"
+	"time"
 	"webtoon/internal/domain/dto"
 	"webtoon/internal/domain/entity"
 	"webtoon/internal/domain/repository"
@@ -77,6 +78,11 @@ func (s *chapterService) UpdateChapter(id string, request dto.ChapterUpdateReque
 		s.logger.WithField("error", id).Warn("chapter not found")
 		return response.Exception(404, "chapter not found")
 	}
+	comic, err := s.comicRepository.FindById(chapter.ComicId)
+	if err != nil {
+		s.logger.WithField("error", id).Warn("comic not found")
+		return response.Exception(404, "comic not found")
+	}
 	if request.Number != nil {
 		chapter.Number = *request.Number
 	}
@@ -85,6 +91,11 @@ func (s *chapterService) UpdateChapter(id string, request dto.ChapterUpdateReque
 	}
 	if err := s.chapterRepository.Save(chapter); err != nil {
 		s.logger.WithError(err).Error("chapter save error")
+		return err
+	}
+	comic.UpdatedAt = time.Now()
+	if err := s.comicRepository.Save(comic); err != nil {
+		s.logger.WithError(err).Error("comic save error")
 		return err
 	}
 	s.logger.WithField("data", id).Info("update chapter success")

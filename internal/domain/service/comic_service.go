@@ -54,7 +54,7 @@ func (s *comicService) AddComic(cover *multipart.FileHeader, request *dto.ComicA
 		s.logger.WithError(err).Warn("validation error")
 		return response.Exception(400, err.Error())
 	}
-	filename := fmt.Sprintf("%d.webp", time.Now().Unix())
+	filename := fmt.Sprintf("%d-%s.webp", time.Now().UnixNano(), uuid.NewString())
 	go func(filename string) {
 		webpFile, err := image.CompressToCwebp(cover)
 		if err != nil {

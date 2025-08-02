@@ -67,6 +67,7 @@ func (s *contentService) AddBulkContent(chapterId string, contents []*multipart.
 		}
 	}
 
+	count := 0
 	for _, content := range contents {
 		filename := fmt.Sprintf("%d.webp", time.Now().UnixNano())
 		webpFile, err := image.CompressToCwebp(content)
@@ -81,6 +82,9 @@ func (s *contentService) AddBulkContent(chapterId string, contents []*multipart.
 			s.logger.WithError(err).Error("s3 upload file error")
 			return err
 		}
+		count += 1
+		fmt.Println("upload: ", +count)
+
 		url := pkg.GenerateUrl(filename)
 		contentEnt := &entity.Content{
 			ChapterId: int64(newChapterId),
