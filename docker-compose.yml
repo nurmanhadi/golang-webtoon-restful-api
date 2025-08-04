@@ -1,6 +1,7 @@
 services:
   backend:
-    image: .
+    build: .
+    image: backend:latest
     container_name: backend
   
 networks:
