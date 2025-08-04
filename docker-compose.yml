@@ -1,8 +1,22 @@
 services:
   backend:
-    build: .
-    image: backend:latest
+    image: louctre/backend:latest
     container_name: backend
+    environment:
+      APP_NAME: ${APP_NAME}
+      DB_MYSQL_URL: ${DB_MYSQL_URL}
+      DB_POOL_MAX_IDLE_CONNS: ${DB_POOL_MAX_IDLE_CONNS}
+      DB_POOL_MAX_OPEN_CONNS: ${DB_POOL_MAX_OPEN_CONNS}
+      DB_POOL_MAX_IDLE_TIME: ${DB_POOL_MAX_IDLE_TIME}
+      DB_POOL_MAX_LIFETIME: ${DB_POOL_MAX_LIFETIME}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      ORIGIN_URL: ${ORIGIN_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY_ID: ${MINIO_ACCESS_KEY_ID}
+      MINIO_SECRET_ACCESS_KEY: ${MINIO_SECRET_ACCESS_KEY}
+      MINIO_SSL: ${MINIO_SSL}
+      MINIO_BUCKETS: ${MINIO_BUCKETS}
+    pull_policy: always
   
 networks:
   welltoon-private:
