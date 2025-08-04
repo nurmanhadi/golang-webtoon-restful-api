@@ -38,9 +38,30 @@ func (r *comicStorage) FindAll(page int, size int) ([]entity.Comic, error) {
 	}
 	return comics, nil
 }
+func (r *comicStorage) FindAllByType(comicType string, page int, size int) ([]entity.Comic, error) {
+	var comics []entity.Comic
+	err := r.db.
+		Offset((page-1)*size).
+		Limit(size).
+		Order("updated_at DESC").
+		Where("type = ?", comicType).
+		Find(&comics).Error
+	if err != nil {
+		return nil, err
+	}
+	return comics, nil
+}
 func (r *comicStorage) CountTotal() (int64, error) {
 	var count int64
 	err := r.db.Model(&entity.Comic{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+func (r *comicStorage) CountTotalByType(comicType string) (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Comic{}).Where("type = ?", comicType).Count(&count).Error
 	if err != nil {
 		return 0, err
 	}

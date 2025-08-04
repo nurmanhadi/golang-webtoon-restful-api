@@ -25,6 +25,8 @@ func (i *Init) Setup(app *fiber.App) {
 	// public
 	api.Get("/comics", i.ComicHandler.GetAll)
 	api.Get("/comics/:comicId", i.ComicHandler.GetById)
+	api.Get("/comics/type/:type", i.ComicHandler.GetAllByType)
+
 	api.Get("/comics/:comicId/chapters/:number", i.ChapterHandler.GetChapterByComicIdAndNumber)
 
 	api.Get("/search", i.ComicHandler.Search)

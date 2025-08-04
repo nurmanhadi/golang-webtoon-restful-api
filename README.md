@@ -127,8 +127,11 @@ This document provides an overview of the available RESTful API endpoints for th
 #### 🔍 Get Comic by ID
 **GET** `/api/comics/:id`
 
-#### 📖 Get All Comics
+#### 📖 Get All Comics Update
 **GET** `/api/comics?page=1&size=20`
+
+#### 📖 Get All Comics By Type
+**GET** `/api/comics/type/:type?page=1&size=20`
 
 #### 🔍 Search Comics
 **GET** `/api/search?keyword=...&page=1&size=20`

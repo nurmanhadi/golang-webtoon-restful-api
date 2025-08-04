@@ -16,6 +16,7 @@ type ComicHandler interface {
 	GetAll(c *fiber.Ctx) error
 	Remove(c *fiber.Ctx) error
 	Search(c *fiber.Ctx) error
+	GetAllByType(c *fiber.Ctx) error
 }
 
 type comicHandler struct {
@@ -98,6 +99,16 @@ func (h *comicHandler) Search(c *fiber.Ctx) error {
 	page := c.Query("page", "1")
 	size := c.Query("size", "10")
 	result, err := h.ComicService.Search(keyword, page, size)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
+}
+func (h *comicHandler) GetAllByType(c *fiber.Ctx) error {
+	comicType := c.Params("type")
+	page := c.Query("page", "1")
+	size := c.Query("size", "10")
+	result, err := h.ComicService.GetAllByType(comicType, page, size)
 	if err != nil {
 		return err
 	}

@@ -28,6 +28,7 @@ type ComicService interface {
 	GetAll(page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
 	Remove(id string) error
 	Search(keyword string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
+	GetAllByType(comicTyoe string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
 }
 
 type comicService struct {
@@ -317,5 +318,52 @@ func (s *comicService) Search(keyword string, page string, size string) (*pkg.Pa
 		TotalElement: int(totalElement),
 	}
 	s.logger.WithField("data", keyword).Info("comic search success")
+	return result, nil
+}
+func (s *comicService) GetAllByType(comicTyoe string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error) {
+	newPage, err := strconv.Atoi(page)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return nil, response.Exception(400, "page most be number")
+	}
+	newSize, err := strconv.Atoi(size)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return nil, response.Exception(400, "size most be number")
+	}
+	comics, err := s.comicRepository.FindAllByType(comicTyoe, newPage, newSize)
+	if err != nil {
+		s.logger.WithError(err).Error("find all comic error")
+		return nil, err
+	}
+	contents := make([]dto.ComicResponse, 0, len(comics))
+	for _, comic := range comics {
+		contents = append(contents, dto.ComicResponse{
+			Id:            comic.Id,
+			Title:         comic.Title,
+			Synopsis:      comic.Synopsis,
+			Author:        comic.Author,
+			Artist:        comic.Artist,
+			Type:          comic.Type,
+			CoverFilename: comic.CoverFilename,
+			CoverUrl:      comic.CoverUrl,
+			CreatedAt:     comic.CreatedAt,
+			UpdatedAt:     comic.UpdatedAt,
+		})
+	}
+	totalComic, err := s.comicRepository.CountTotalByType(comicTyoe)
+	if err != nil {
+		s.logger.WithError(err).Error("count total comic by type error")
+		return nil, err
+	}
+	totalPage := int(math.Ceil(float64(totalComic) / float64(newSize)))
+	result := &pkg.Paging[[]dto.ComicResponse]{
+		Contents:     contents,
+		Page:         newPage,
+		Size:         newSize,
+		TotalPage:    totalPage,
+		TotalElement: int(totalComic),
+	}
+	s.logger.WithField("data", comicTyoe).Info("get all comic success")
 	return result, nil
 }

@@ -11,4 +11,6 @@ type ComicRepository interface {
 	Search(key string, page int, size int) ([]entity.Comic, error)
 	CountTotalByKeyword(key string) (int64, error)
 	CountById(id string) (int64, error)
+	FindAllByType(comicType string, page int, size int) ([]entity.Comic, error)
+	CountTotalByType(comicType string) (int64, error)
 }
