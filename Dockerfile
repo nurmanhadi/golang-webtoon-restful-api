@@ -1,4 +1,7 @@
 FROM golang:1.24-alpine AS builder
+
+RUN apk add --no-cache build-base libwebp-dev
+
 WORKDIR /app
 COPY . .
 RUN go mod download
