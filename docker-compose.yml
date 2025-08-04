@@ -1,0 +1,8 @@
+services:
+  backend:
+    image: .
+    container_name: backend
+  
+networks:
+  welltoon-private:
+    external: true
