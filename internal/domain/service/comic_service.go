@@ -29,6 +29,7 @@ type ComicService interface {
 	Remove(id string) error
 	Search(keyword string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
 	GetAllByType(comicTyoe string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
+	UpdateViews(id string, view string) error
 }
 
 type comicService struct {
@@ -81,6 +82,7 @@ func (s *comicService) AddComic(cover *multipart.FileHeader, request *dto.ComicA
 		Type:          request.Type,
 		CoverFilename: filename,
 		CoverUrl:      coverUrl,
+		Views:         0,
 	}
 	if err := s.comicRepository.Save(comic); err != nil {
 		s.logger.WithError(err).Error("comic save error")
@@ -175,6 +177,7 @@ func (s *comicService) GetById(id string) (*dto.ComicResponse, error) {
 		Type:          comic.Type,
 		CoverFilename: comic.CoverFilename,
 		CoverUrl:      comic.CoverUrl,
+		Views:         comic.Views,
 		CreatedAt:     comic.CreatedAt,
 		UpdatedAt:     comic.UpdatedAt,
 		Genres:        &genres,
@@ -347,6 +350,7 @@ func (s *comicService) GetAllByType(comicTyoe string, page string, size string) 
 			Type:          comic.Type,
 			CoverFilename: comic.CoverFilename,
 			CoverUrl:      comic.CoverUrl,
+			Views:         comic.Views,
 			CreatedAt:     comic.CreatedAt,
 			UpdatedAt:     comic.UpdatedAt,
 		})
@@ -366,4 +370,22 @@ func (s *comicService) GetAllByType(comicTyoe string, page string, size string) 
 	}
 	s.logger.WithField("data", comicTyoe).Info("get all comic success")
 	return result, nil
+}
+func (s *comicService) UpdateViews(id string, view string) error {
+	newView, err := strconv.ParseInt(view, 10, 64)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return response.Exception(400, "page most be number")
+	}
+	comic, err := s.comicRepository.FindById(id)
+	if err != nil {
+		s.logger.WithField("error", id).Warn("comic not found")
+		return response.Exception(404, "comic not found")
+	}
+	comic.Views += newView
+	if err := s.comicRepository.Save(comic); err != nil {
+		s.logger.WithError(err).Error("comic save error")
+	}
+	s.logger.WithField("data", id).Info("comic update views success")
+	return nil
 }

@@ -6,3 +6,4 @@ future
 5. remove comic                 | done
 6. search                       | done
 7. get all type                 | done
+7. update views                 | done

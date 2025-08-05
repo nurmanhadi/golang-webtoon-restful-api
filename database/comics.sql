@@ -7,6 +7,7 @@ CREATE TABLE comics(
     type ENUM('manga', 'manhua', 'manhwa') NOT NULL,
     cover_filename VARCHAR(100),
     cover_url VARCHAR(255),
+    views BIGINT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

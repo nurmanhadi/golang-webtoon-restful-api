@@ -17,6 +17,7 @@ type ComicHandler interface {
 	Remove(c *fiber.Ctx) error
 	Search(c *fiber.Ctx) error
 	GetAllByType(c *fiber.Ctx) error
+	UpdateViews(c *fiber.Ctx) error
 }
 
 type comicHandler struct {
@@ -113,4 +114,12 @@ func (h *comicHandler) GetAllByType(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, result)
+}
+func (h *comicHandler) UpdateViews(c *fiber.Ctx) error {
+	comicId := c.Params("comicId")
+	views := c.Params("views")
+	if err := h.ComicService.UpdateViews(comicId, views); err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
 }

@@ -14,6 +14,7 @@ type Comic struct {
 	Type          comictype.TYPE `gorm:"type:enum('manga','manhua','manhwa');not null"`
 	CoverFilename string         `gorm:"type:varchar(100);not null"`
 	CoverUrl      string         `gorm:"type:varchar(255);not null"`
+	Views         int64          `gorm:"type:bigint"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	ComicGenre    []ComicGenre
