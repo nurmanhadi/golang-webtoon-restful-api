@@ -6,4 +6,6 @@ future
 5. remove comic                 | done
 6. search                       | done
 7. get all type                 | done
-7. update views                 | done
+8. update views                 | done
+9. find all by views day        | 
+9. find all by create           | 

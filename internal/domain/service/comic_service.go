@@ -30,6 +30,7 @@ type ComicService interface {
 	Search(keyword string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
 	GetAllByType(comicTyoe string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error)
 	UpdateViews(id string, view string) error
+	GetAllByViewsPeriod(timePeriod string, limit string) ([]dto.ComicResponse, error)
 }
 
 type comicService struct {
@@ -234,6 +235,7 @@ func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]dto.Comic
 			Type:          comic.Type,
 			CoverFilename: comic.CoverFilename,
 			CoverUrl:      comic.CoverUrl,
+			Views:         comic.Views,
 			CreatedAt:     comic.CreatedAt,
 			UpdatedAt:     comic.UpdatedAt,
 			Chapters:      &chapters,
@@ -255,7 +257,6 @@ func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]dto.Comic
 	s.logger.Info("get all comic success")
 	return result, nil
 }
-
 func (s *comicService) Remove(id string) error {
 	comic, err := s.comicRepository.FindById(id)
 	if err != nil {
@@ -275,7 +276,6 @@ func (s *comicService) Remove(id string) error {
 	s.logger.WithField("data", id).Info("comic delete success")
 	return nil
 }
-
 func (s *comicService) Search(keyword string, page string, size string) (*pkg.Paging[[]dto.ComicResponse], error) {
 	newPage, err := strconv.Atoi(page)
 	if err != nil {
@@ -388,4 +388,34 @@ func (s *comicService) UpdateViews(id string, view string) error {
 	}
 	s.logger.WithField("data", id).Info("comic update views success")
 	return nil
+}
+func (s *comicService) GetAllByViewsPeriod(timePeriod string, limit string) ([]dto.ComicResponse, error) {
+	newLimit, err := strconv.Atoi(limit)
+	if err != nil {
+		s.logger.WithError(err).Warn("parse string to int error")
+		return nil, response.Exception(400, "limit most be number")
+	}
+	comics, err := s.comicRepository.FindAllByViewsByPeriod(newLimit, timePeriod)
+	if err != nil {
+		s.logger.WithError(err).Error("find all comic by views by period error")
+		return nil, err
+	}
+	result := make([]dto.ComicResponse, 0, len(comics))
+	for _, comic := range comics {
+		result = append(result, dto.ComicResponse{
+			Id:            comic.Id,
+			Title:         comic.Title,
+			Synopsis:      comic.Synopsis,
+			Author:        comic.Author,
+			Artist:        comic.Artist,
+			Type:          comic.Type,
+			CoverFilename: comic.CoverFilename,
+			CoverUrl:      comic.CoverUrl,
+			Views:         comic.Views,
+			CreatedAt:     comic.CreatedAt,
+			UpdatedAt:     comic.UpdatedAt,
+		})
+	}
+	s.logger.WithField("data", timePeriod).Info("get all comic by views by period success")
+	return result, nil
 }

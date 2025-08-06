@@ -1,8 +1,10 @@
 package mysql
 
 import (
+	"time"
 	"webtoon/internal/domain/entity"
 	"webtoon/internal/domain/repository"
+	"webtoon/pkg/period"
 
 	"gorm.io/gorm"
 )
@@ -45,6 +47,32 @@ func (r *comicStorage) FindAllByType(comicType string, page int, size int) ([]en
 		Limit(size).
 		Order("updated_at DESC").
 		Where("type = ?", comicType).
+		Find(&comics).Error
+	if err != nil {
+		return nil, err
+	}
+	return comics, nil
+}
+func (r *comicStorage) FindAllByViewsByPeriod(limit int, timePeriod string) ([]entity.Comic, error) {
+	var comics []entity.Comic
+	query := r.db.Model(&entity.Comic{})
+
+	switch timePeriod {
+	case string(period.DAILY):
+		query = query.Where("updated_at >= ?", time.Now().AddDate(0, 0, -1))
+	case string(period.WEEKLY):
+		query = query.Where("updated_at >= ?", time.Now().AddDate(0, 0, -7))
+	case string(period.MONTHLY):
+		query = query.Where("updated_at >= ?", time.Now().AddDate(0, 0, -30))
+	case string(period.ALL_TIME):
+		// not filter
+	default:
+		// not filter
+	}
+
+	err := query.
+		Limit(limit).
+		Order("views DESC").
 		Find(&comics).Error
 	if err != nil {
 		return nil, err

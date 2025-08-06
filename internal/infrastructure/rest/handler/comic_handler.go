@@ -18,6 +18,7 @@ type ComicHandler interface {
 	Search(c *fiber.Ctx) error
 	GetAllByType(c *fiber.Ctx) error
 	UpdateViews(c *fiber.Ctx) error
+	GetAllByViewsPeriod(c *fiber.Ctx) error
 }
 
 type comicHandler struct {
@@ -122,4 +123,13 @@ func (h *comicHandler) UpdateViews(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, "OK")
+}
+func (h *comicHandler) GetAllByViewsPeriod(c *fiber.Ctx) error {
+	period := c.Params("period")
+	limit := c.Query("limit", "10")
+	result, err := h.ComicService.GetAllByViewsPeriod(period, limit)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
 }

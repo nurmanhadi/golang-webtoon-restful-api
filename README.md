@@ -133,6 +133,9 @@ This document provides an overview of the available RESTful API endpoints for th
 #### 📖 Get All Comics By Type
 **GET** `/api/comics/type/:type?page=1&size=20`
 
+#### 📖 Get All Comics By Type
+**GET** `/api/comics/period/:period?limit=10`
+
 #### ✏️ Update Views Comic
 **GET** `/api/comics/:comicId/views/:views`
 
