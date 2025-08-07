@@ -17,6 +17,7 @@ type Comic struct {
 	Views         int64          `gorm:"type:bigint"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	UpdatedPost   time.Time
 	ComicGenre    []ComicGenre
 	Chapters      []Chapter
 }

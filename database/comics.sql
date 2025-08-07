@@ -8,6 +8,7 @@ CREATE TABLE comics(
     cover_filename VARCHAR(100),
     cover_url VARCHAR(255),
     views BIGINT DEFAULT NULL,
+    updated_post TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

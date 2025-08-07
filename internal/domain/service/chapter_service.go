@@ -88,12 +88,12 @@ func (s *chapterService) UpdateChapter(id string, request dto.ChapterUpdateReque
 	}
 	if request.Publish != nil {
 		chapter.Publish = *request.Publish
+		comic.UpdatedPost = time.Now()
 	}
 	if err := s.chapterRepository.Save(chapter); err != nil {
 		s.logger.WithError(err).Error("chapter save error")
 		return err
 	}
-	comic.UpdatedAt = time.Now()
 	if err := s.comicRepository.Save(comic); err != nil {
 		s.logger.WithError(err).Error("comic save error")
 		return err

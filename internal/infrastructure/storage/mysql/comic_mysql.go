@@ -32,7 +32,7 @@ func (r *comicStorage) FindAll(page int, size int) ([]entity.Comic, error) {
 	err := r.db.
 		Offset((page - 1) * size).
 		Limit(size).
-		Order("updated_at DESC").
+		Order("updated_post DESC").
 		Preload("Chapters").
 		Find(&comics).Error
 	if err != nil {
@@ -45,7 +45,7 @@ func (r *comicStorage) FindAllByType(comicType string, page int, size int) ([]en
 	err := r.db.
 		Offset((page-1)*size).
 		Limit(size).
-		Order("updated_at DESC").
+		Order("updated_post DESC").
 		Where("type = ?", comicType).
 		Find(&comics).Error
 	if err != nil {
@@ -59,11 +59,11 @@ func (r *comicStorage) FindAllByViewsByPeriod(limit int, timePeriod string) ([]e
 
 	switch timePeriod {
 	case string(period.DAILY):
-		query = query.Where("updated_at >= ?", time.Now().AddDate(0, 0, -1))
+		query = query.Where("updated_post >= ?", time.Now().AddDate(0, 0, -1))
 	case string(period.WEEKLY):
-		query = query.Where("updated_at >= ?", time.Now().AddDate(0, 0, -7))
+		query = query.Where("updated_post >= ?", time.Now().AddDate(0, 0, -7))
 	case string(period.MONTHLY):
-		query = query.Where("updated_at >= ?", time.Now().AddDate(0, 0, -30))
+		query = query.Where("updated_post >= ?", time.Now().AddDate(0, 0, -30))
 	case string(period.ALL_TIME):
 		// not filter
 	default:

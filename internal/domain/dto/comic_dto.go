@@ -29,6 +29,7 @@ type ComicResponse struct {
 	CoverFilename string             `json:"cover_filename"`
 	CoverUrl      string             `json:"cover_url"`
 	Views         int64              `json:"views"`
+	UpdatedPost   time.Time          `json:"updated_post"`
 	CreatedAt     time.Time          `json:"created_at"`
 	UpdatedAt     time.Time          `json:"updated_at"`
 	Genres        *[]GenreResponse   `json:"genres"`

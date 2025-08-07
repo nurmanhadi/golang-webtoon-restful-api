@@ -84,6 +84,7 @@ func (s *comicService) AddComic(cover *multipart.FileHeader, request *dto.ComicA
 		CoverFilename: filename,
 		CoverUrl:      coverUrl,
 		Views:         0,
+		UpdatedPost:   time.Now(),
 	}
 	if err := s.comicRepository.Save(comic); err != nil {
 		s.logger.WithError(err).Error("comic save error")
@@ -179,6 +180,7 @@ func (s *comicService) GetById(id string) (*dto.ComicResponse, error) {
 		CoverFilename: comic.CoverFilename,
 		CoverUrl:      comic.CoverUrl,
 		Views:         comic.Views,
+		UpdatedPost:   comic.UpdatedPost,
 		CreatedAt:     comic.CreatedAt,
 		UpdatedAt:     comic.UpdatedAt,
 		Genres:        &genres,
@@ -236,6 +238,7 @@ func (s *comicService) GetAll(page string, size string) (*pkg.Paging[[]dto.Comic
 			CoverFilename: comic.CoverFilename,
 			CoverUrl:      comic.CoverUrl,
 			Views:         comic.Views,
+			UpdatedPost:   comic.UpdatedPost,
 			CreatedAt:     comic.CreatedAt,
 			UpdatedAt:     comic.UpdatedAt,
 			Chapters:      &chapters,
@@ -310,6 +313,8 @@ func (s *comicService) Search(keyword string, page string, size string) (*pkg.Pa
 			CoverUrl:      comic.CoverUrl,
 			CreatedAt:     comic.CreatedAt,
 			UpdatedAt:     comic.UpdatedAt,
+			Views:         comic.Views,
+			UpdatedPost:   comic.UpdatedPost,
 		})
 	}
 	totalPage := int(math.Ceil(float64(totalElement) / float64(newSize)))
@@ -351,6 +356,7 @@ func (s *comicService) GetAllByType(comicTyoe string, page string, size string) 
 			CoverFilename: comic.CoverFilename,
 			CoverUrl:      comic.CoverUrl,
 			Views:         comic.Views,
+			UpdatedPost:   comic.UpdatedPost,
 			CreatedAt:     comic.CreatedAt,
 			UpdatedAt:     comic.UpdatedAt,
 		})
@@ -412,6 +418,7 @@ func (s *comicService) GetAllByViewsPeriod(timePeriod string, limit string) ([]d
 			CoverFilename: comic.CoverFilename,
 			CoverUrl:      comic.CoverUrl,
 			Views:         comic.Views,
+			UpdatedPost:   comic.UpdatedPost,
 			CreatedAt:     comic.CreatedAt,
 			UpdatedAt:     comic.UpdatedAt,
 		})
