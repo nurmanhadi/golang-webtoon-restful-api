@@ -17,6 +17,7 @@ type Init struct {
 	ComicGenreHandler handler.ComicGenreHandler
 	ChapterHandler    handler.ChapterHandler
 	ContentHandler    handler.ContentHandler
+	DashboardHandler  handler.DashboardHandler
 }
 
 func (i *Init) Setup(app *fiber.App) {
@@ -74,4 +75,8 @@ func (i *Init) Setup(app *fiber.App) {
 	comicGenre := api.Group("/comic-genre", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN)}))
 	comicGenre.Post("/", i.ComicGenreHandler.AddComicGenre)
 	comicGenre.Delete("/comics/:comicId/genres/:genreId", i.ComicGenreHandler.RemoveComicGenreByComicIdAndGenreId)
+
+	// dashboard
+	dashboard := api.Group("/dashboard", i.Middleware.JwtValidation(), i.Middleware.RequireRole([]string{string(role.ADMIN)}))
+	dashboard.Get("/summary", i.DashboardHandler.Summary)
 }

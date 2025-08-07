@@ -14,4 +14,8 @@ type ComicRepository interface {
 	FindAllByType(comicType string, page int, size int) ([]entity.Comic, error)
 	CountTotalByType(comicType string) (int64, error)
 	FindAllByViewsByPeriod(limit int, timePeriod string) ([]entity.Comic, error)
+	CountTotalView() (int64, error)
+	CountTotalViewDaily() (int64, error)
+	CountTotalViewWeekly() (int64, error)
+	CountTotalViewMonthly() (int64, error)
 }

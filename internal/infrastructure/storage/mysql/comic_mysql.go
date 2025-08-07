@@ -131,3 +131,35 @@ func (r *comicStorage) CountTotalByKeyword(key string) (int64, error) {
 	}
 	return count, nil
 }
+func (r *comicStorage) CountTotalView() (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Comic{}).Select("SUM(views)").Scan(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+func (r *comicStorage) CountTotalViewDaily() (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Comic{}).Where("updated_at >= ?", time.Now().AddDate(0, 0, -1)).Select("SUM(views)").Scan(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+func (r *comicStorage) CountTotalViewWeekly() (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Comic{}).Where("updated_at >= ?", time.Now().AddDate(0, 0, -7)).Select("SUM(views)").Scan(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+func (r *comicStorage) CountTotalViewMonthly() (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Comic{}).Where("updated_at >= ?", time.Now().AddDate(0, 0, -30)).Select("SUM(views)").Scan(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

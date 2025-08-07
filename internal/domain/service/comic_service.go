@@ -389,6 +389,7 @@ func (s *comicService) UpdateViews(id string, view string) error {
 		return response.Exception(404, "comic not found")
 	}
 	comic.Views += newView
+	comic.UpdatedAt = time.Now()
 	if err := s.comicRepository.Save(comic); err != nil {
 		s.logger.WithError(err).Error("comic save error")
 	}

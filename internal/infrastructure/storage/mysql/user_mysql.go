@@ -25,3 +25,11 @@ func (r *userStorage) FindById(id string) (*entity.User, error) {
 	}
 	return user, nil
 }
+func (r *userStorage) CountTotalUser() (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.User{}).Where("role = ?", "user").Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

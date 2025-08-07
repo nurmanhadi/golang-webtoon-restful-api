@@ -8,4 +8,5 @@ type ChapterRepository interface {
 	FindByComicIdAndNumber(comicId string, number int) (*entity.Chapter, error)
 	Count(id int) (int64, error)
 	Delete(id int) error
+	CountTotalChapter() (int64, error)
 }

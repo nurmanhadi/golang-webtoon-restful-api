@@ -44,3 +44,11 @@ func (r *chapterStorage) Count(id int) (int64, error) {
 func (r *chapterStorage) Delete(id int) error {
 	return r.db.Where("id = ?", id).Delete(&entity.Chapter{}).Error
 }
+func (r *chapterStorage) CountTotalChapter() (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Chapter{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

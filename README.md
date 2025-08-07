@@ -237,6 +237,14 @@ This document provides an overview of the available RESTful API endpoints for th
 
 ---
 
+### 📄 Dashboard
+
+#### 📖 Summary
+**GET** `/api/dashboard/summary`  
+> Requires Authorization header
+
+---
+
 ### 📌 Notes
 - Use `Authorization: Bearer <token>` header where required.
 - Make sure to replace `:id`, `:comicId`, `:chapterId`, `:contentId`, etc. with actual UUIDs or IDs.

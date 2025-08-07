@@ -45,6 +45,7 @@ func Initialize(conf *Configuration) {
 	comicGenreServ := service.NewComicGenreService(conf.Logger, conf.Validation, comicGenreStore, comicStore, genreStore)
 	chapterServ := service.NewChapterService(conf.Logger, conf.Validation, chapterStore, comicStore, s3Store)
 	contentServ := service.NewContentService(conf.Logger, conf.Validation, contentStore, chapterStore, s3Store)
+	dashboardServ := service.NewDashboardService(conf.Logger, userStore, comicStore, chapterStore)
 
 	// handler
 	authHand := handler.NewAuthHandler(authServ)
@@ -54,6 +55,7 @@ func Initialize(conf *Configuration) {
 	comicGenreHand := handler.NewComicGenreHandler(comicGenreServ)
 	chapterHand := handler.NewChapterHandler(chapterServ)
 	contentHand := handler.NewContentHandler(contentServ)
+	dashboardHand := handler.NewDashboardHandler(dashboardServ)
 
 	// middleware
 	middleware := &middleware.Inject{
@@ -71,6 +73,7 @@ func Initialize(conf *Configuration) {
 		ComicGenreHandler: comicGenreHand,
 		ChapterHandler:    chapterHand,
 		ContentHandler:    contentHand,
+		DashboardHandler:  dashboardHand,
 	}
 	route.Setup(conf.App)
 }
