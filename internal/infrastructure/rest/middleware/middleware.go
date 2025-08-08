@@ -30,10 +30,10 @@ func (m *Inject) Setup() {
 
 	originUrl := os.Getenv("ORIGIN_URL")
 	m.App.Use(cors.New(cors.Config{
-		AllowOrigins: originUrl,
-		AllowHeaders: "Origin, Content-Type, Authorization, Options",
-		AllowMethods: "GET, PUT, POST, DELETE",
-		// AllowCredentials: true,
+		AllowOrigins:     originUrl,
+		AllowHeaders:     "Origin, Content-Type, Authorization, Options",
+		AllowMethods:     "GET, PUT, POST, DELETE",
+		AllowCredentials: true,
 	}))
 
 	m.App.Use(compress.New(compress.Config{
