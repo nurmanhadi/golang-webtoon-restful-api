@@ -19,6 +19,7 @@ It supports authentication, user management, comic and chapter CRUD, genre taggi
 - [MinIO (S3 compatible)](https://min.io/) - Object storage for media files
 - [Go Validator](https://github.com/go-playground/validator) - Struct validation library
 - [Docker](https://www.docker.com/) - Container platform to run the app and services
+- [Minio](https://www.min.io/) - Object Storage
 
 ---
 
