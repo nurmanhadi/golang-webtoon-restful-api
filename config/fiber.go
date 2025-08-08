@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"webtoon/pkg/response"
 
@@ -12,9 +13,10 @@ import (
 )
 
 func NewFiber() *fiber.App {
+	prefork, _ := strconv.ParseBool(os.Getenv("APP_PREFORK"))
 	return fiber.New(fiber.Config{
 		AppName:      os.Getenv("APP_NAME"),
-		Prefork:      true,
+		Prefork:      prefork,
 		JSONEncoder:  json.Marshal,
 		JSONDecoder:  json.Unmarshal,
 		ErrorHandler: errorHandler,

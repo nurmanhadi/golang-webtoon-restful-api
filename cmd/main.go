@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"webtoon/config"
 )
 
@@ -23,8 +25,8 @@ func main() {
 		S3:         s3,
 		App:        app,
 	})
-
-	if err := app.Listen(":3000"); err != nil {
+	port := os.Getenv("APP_PORT")
+	if err := app.Listen(fmt.Sprintf(":%s", port)); err != nil {
 		log.Fatalf("gofiber error: %s", err.Error())
 	}
 }
