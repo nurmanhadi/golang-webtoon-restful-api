@@ -32,7 +32,7 @@ func (m *Inject) Setup() {
 	m.App.Use(cors.New(cors.Config{
 		AllowOrigins:     originUrl,
 		AllowHeaders:     "Origin, Content-Type, Authorization, Options",
-		AllowMethods:     "GET, PUT, POST, DELETE",
+		AllowMethods:     "GET, PUT, POST, DELETE, OPTIONS",
 		AllowCredentials: true,
 	}))
 

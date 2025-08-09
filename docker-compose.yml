@@ -19,6 +19,7 @@ services:
       MINIO_SSL: ${MINIO_SSL}
       MINIO_BUCKETS: ${MINIO_BUCKETS}
     pull_policy: always
+    restart: unless-stopped
     networks:
       - welltoon-private
   
